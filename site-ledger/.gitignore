@@ -1,0 +1,94 @@
+# ============================
+# Java / Maven (Backend)
+# ============================
+backend/target/
+backend/*.jar
+backend/*.war
+backend/*.class
+backend/*.log
+backend/logs/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# ============================
+# Node / Frontend
+# ============================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.log
+frontend/logs/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/*.local
+
+# ============================
+# Android / Capacitor (Mobile)
+# ============================
+frontend/android/.gradle/
+frontend/android/build/
+frontend/android/local.properties
+frontend/android/.idea/
+frontend/android/*.iml
+frontend/android/captures/
+frontend/android/.externalNativeBuild/
+frontend/android/.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# ============================
+# IDE & Editor Files
+# ============================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ============================
+# OS Files
+# ============================
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ============================
+# Environment & Secrets
+# ============================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.jks
+*.keystore
+backend/src/main/resources/application.properties
+!backend/src/main/resources/application.example.properties
+
+# ============================
+# Uploads & Data
+# ============================
+*.upload*
+uploads/
+site-ledger-uploads/
+
+# ============================
+# Docker
+# ============================
+infra/postgres-data/
+
+# ============================
+# Logs
+# ============================
+*.log
+logs/
