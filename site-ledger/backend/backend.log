@@ -1,0 +1,81 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-06-03T14:11:28.615+05:30  INFO 145099 --- [site-ledger] [           main] com.siteledger.SiteLedgerApplication     : Starting SiteLedgerApplication v1.0.0 using Java 21.0.11 with PID 145099 (/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/target/site-ledger-backend-1.0.0.jar started by prince-kumar-maurya in /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend)
+2026-06-03T14:11:28.619+05:30  INFO 145099 --- [site-ledger] [           main] com.siteledger.SiteLedgerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-06-03T14:11:30.754+05:30  INFO 145099 --- [site-ledger] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-03T14:11:30.959+05:30  INFO 145099 --- [site-ledger] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 189 ms. Found 17 JPA repository interfaces.
+2026-06-03T14:11:32.193+05:30  INFO 145099 --- [site-ledger] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-06-03T14:11:32.251+05:30  INFO 145099 --- [site-ledger] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-03T14:11:32.254+05:30  INFO 145099 --- [site-ledger] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-06-03T14:11:32.334+05:30  INFO 145099 --- [site-ledger] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-03T14:11:32.337+05:30  INFO 145099 --- [site-ledger] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3486 ms
+2026-06-03T14:11:32.867+05:30  INFO 145099 --- [site-ledger] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-03T14:11:33.174+05:30  INFO 145099 --- [site-ledger] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-06-03T14:11:33.254+05:30  INFO 145099 --- [site-ledger] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-03T14:11:33.809+05:30  INFO 145099 --- [site-ledger] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-03T14:11:33.868+05:30  INFO 145099 --- [site-ledger] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-03T14:11:34.412+05:30  INFO 145099 --- [site-ledger] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@9d99851
+2026-06-03T14:11:34.414+05:30  INFO 145099 --- [site-ledger] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-03T14:11:34.511+05:30  WARN 145099 --- [site-ledger] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-03T14:11:36.978+05:30  INFO 145099 --- [site-ledger] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-03T14:11:37.574+05:30  INFO 145099 --- [site-ledger] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-03T14:11:38.293+05:30  INFO 145099 --- [site-ledger] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-03T14:11:39.778+05:30  WARN 145099 --- [site-ledger] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-03T14:11:40.225+05:30  INFO 145099 --- [site-ledger] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@18accf9c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4ce2f4d6, org.springframework.security.web.context.SecurityContextHolderFilter@b729651, org.springframework.security.web.header.HeaderWriterFilter@26ae9861, org.springframework.web.filter.CorsFilter@58070889, org.springframework.security.web.authentication.logout.LogoutFilter@27211dd9, com.siteledger.security.JwtAuthenticationFilter@25a7fedf, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@11f415e4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@27af14bd, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5c71329f, org.springframework.security.web.session.SessionManagementFilter@c3fd72, org.springframework.security.web.access.ExceptionTranslationFilter@1cb83205, org.springframework.security.web.access.intercept.AuthorizationFilter@3a4ddaed]
+2026-06-03T14:11:40.550+05:30  INFO 145099 --- [site-ledger] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path ''
+2026-06-03T14:11:40.560+05:30  INFO 145099 --- [site-ledger] [           main] com.siteledger.SiteLedgerApplication     : Started SiteLedgerApplication in 12.926 seconds (process running for 14.608)
+2026-06-03T14:11:53.913+05:30  INFO 145099 --- [site-ledger] [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-03T14:11:53.914+05:30  INFO 145099 --- [site-ledger] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-03T14:11:53.916+05:30  INFO 145099 --- [site-ledger] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-03T14:18:23.164+05:30  INFO 145099 --- [site-ledger] [nio-8081-exec-2] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in method name [0x160x030x010x060xe00x010x000x060xdc0x030x0370xca0x9b0x000xab0x06-U0x90p0x18_0xae$'{0x9f40xb4z0xcbf@j0x970xac0x1aC20x910xee0x0d ]. HTTP method names must be tokens
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:407) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:264) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1736) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-06-03T14:18:23.169+05:30  INFO 145099 --- [site-ledger] [nio-8081-exec-4] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in method name [0x160x030x010x060xe00x010x000x060xdc0x030x030x000xb3_Z0xce0x910xf10xc70x12n0xe60xbd5:0xb20x03N0xd00xe00xdc0x850x9d0x11_p0xbeP0xba0x0f"0xc9~ ]. HTTP method names must be tokens
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:407) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:264) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1736) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-06-03T14:18:23.165+05:30  INFO 145099 --- [site-ledger] [nio-8081-exec-3] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in method name [0x160x030x010x060xa00x010x000x060x9c0x030x030xeb0xdd0xe40xb5)`0xfd0x810xef0xa2c0xdc0xaa ]. HTTP method names must be tokens
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:407) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:264) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1736) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.20.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+

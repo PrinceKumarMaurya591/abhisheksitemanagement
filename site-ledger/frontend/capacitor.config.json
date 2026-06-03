@@ -1,0 +1,9 @@
+{
+  "appId": "com.siteledger.app",
+  "appName": "Site Ledger",
+  "webDir": "dist",
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http"
+  }
+}
