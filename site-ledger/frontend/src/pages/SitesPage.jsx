@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSites, createSite, updateSiteStatus } from '../api/siteApi';
+import { getYojnas } from '../api/yojnaApi';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
@@ -7,22 +8,28 @@ import { useAuth } from '../context/AuthContext';
 export default function SitesPage() {
   const { user } = useAuth();
   const [sites, setSites] = useState([]);
+  const [yojnas, setYojnas] = useState([]);
+  const [selectedYojnaId, setSelectedYojnaId] = useState('');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     siteName: '', department: '', workName: '', contractValue: '',
-    workOrderNumber: '', startDate: '', endDate: '', address: '',
+    workOrderNumber: '', startDate: '', endDate: '', address: '', yojna: null,
   });
 
-  useEffect(() => { loadSites(); }, []);
+  useEffect(() => { loadData(); }, []);
 
   const canManageStatus = user?.role === 'OWNER' || user?.role === 'OFFICE_ADMIN';
   const canCreateSite = user?.role === 'OWNER' || user?.role === 'OFFICE_ADMIN';
 
-  const loadSites = async () => {
+  const loadData = async () => {
     try {
-      const res = await getSites();
-      setSites(res.data);
+      const [sitesRes, yojnasRes] = await Promise.all([
+        getSites(),
+        getYojnas(),
+      ]);
+      setSites(sitesRes.data);
+      setYojnas(yojnasRes.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -30,16 +37,22 @@ export default function SitesPage() {
     }
   };
 
+  const filteredSites = selectedYojnaId
+    ? sites.filter(s => s.yojna?.id === Number(selectedYojnaId))
+    : sites;
+
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await createSite({
+      const payload = {
         ...form,
         contractValue: form.contractValue ? Number(form.contractValue) : null,
-      });
+        yojna: form.yojna ? { id: Number(form.yojna) } : null,
+      };
+      await createSite(payload);
       setShowForm(false);
-      setForm({ siteName: '', department: '', workName: '', contractValue: '', workOrderNumber: '', startDate: '', endDate: '', address: '' });
-      loadSites();
+      setForm({ siteName: '', department: '', workName: '', contractValue: '', workOrderNumber: '', startDate: '', endDate: '', address: '', yojna: null });
+      loadData();
     } catch (err) {
       alert('Failed to create site');
     }
@@ -48,7 +61,7 @@ export default function SitesPage() {
   const handleStatusChange = async (siteId, newStatus) => {
     try {
       await updateSiteStatus(siteId, { status: newStatus });
-      loadSites();
+      loadData();
     } catch (err) {
       alert('Failed to update site status');
     }
@@ -62,7 +75,7 @@ export default function SitesPage() {
     <Layout>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Sites</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Sites / Sections</h1>
         {canCreateSite && (
           <button onClick={() => setShowForm(!showForm)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
             {showForm ? 'Cancel' : '+ New Site'}
@@ -77,6 +90,16 @@ export default function SitesPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Site Name *</label>
               <input type="text" required value={form.siteName} onChange={(e) => setForm({...form, siteName: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nikay / Yojna *</label>
+              <select required value={form.yojna || ''} onChange={(e) => setForm({...form, yojna: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="">Select Yojna</option>
+                {yojnas.filter(y => y.status === 'ACTIVE').map(y => (
+                  <option key={y.id} value={y.id}>{y.yojnaName}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
@@ -120,23 +143,42 @@ export default function SitesPage() {
         </form>
       )}
 
+      {/* Yojna Filter */}
+      <div className="flex items-center gap-3">
+        <label className="text-sm font-medium text-gray-700">Filter by Yojna:</label>
+        <select value={selectedYojnaId} onChange={(e) => setSelectedYojnaId(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <option value="">All Yojnas</option>
+          {yojnas.map(y => (
+            <option key={y.id} value={y.id}>{y.yojnaName}</option>
+          ))}
+        </select>
+        <span className="text-sm text-gray-400">{filteredSites.length} site(s)</span>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="text-left py-3 px-4 font-medium text-gray-500">Site Name</th>
+              <th className="text-left py-3 px-4 font-medium text-gray-500">Yojna</th>
               <th className="text-left py-3 px-4 font-medium text-gray-500">Work Name</th>
-              <th className="text-left py-3 px-4 font-medium text-gray-500">Contract Value</th>
               <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
               <th className="text-left py-3 px-4 font-medium text-gray-500">Action</th>
             </tr>
           </thead>
           <tbody>
-            {sites.map((site) => (
+            {filteredSites.map((site) => (
               <tr key={site.id} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="py-3 px-4 font-medium">{site.siteName}</td>
+                <td className="py-3 px-4 text-gray-600">
+                  {site.yojna ? (
+                    <Link to={`/yojnas/${site.yojna.id}`} className="text-indigo-600 hover:text-indigo-800 text-xs">
+                      {site.yojna.yojnaName}
+                    </Link>
+                  ) : '-'}
+                </td>
                 <td className="py-3 px-4 text-gray-600">{site.workName || '-'}</td>
-                <td className="py-3 px-4">{formatCurrency(site.contractValue)}</td>
                 <td className="py-3 px-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     site.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
@@ -174,8 +216,8 @@ export default function SitesPage() {
                 </td>
               </tr>
             ))}
-            {sites.length === 0 && (
-              <tr><td colSpan={5} className="py-8 text-center text-gray-400">No sites yet. Create your first site!</td></tr>
+            {filteredSites.length === 0 && (
+              <tr><td colSpan={5} className="py-8 text-center text-gray-400">No sites found for this filter</td></tr>
             )}
           </tbody>
         </table>

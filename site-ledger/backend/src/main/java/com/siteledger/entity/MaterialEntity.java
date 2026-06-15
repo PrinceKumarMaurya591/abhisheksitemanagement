@@ -47,6 +47,10 @@ public class MaterialEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private SiteEntity site;
 
+    /** Who created this entry */
+    @Column(length = 100)
+    private String createdBy;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

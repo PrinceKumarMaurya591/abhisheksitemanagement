@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-// Phone se connect karne ke liye localhost ki jagah system ka IP use karein
-// CMD mein ye command chalakar IP nikaalein: ip addr show | grep "inet " | grep -v 127.0.0.1
-// WiFi IP: 10.24.127.222
-const API_BASE_URL = 'http://10.24.127.222:8081/api';
+// In production (Vite build), API is proxied through Nginx (same domain - /api)
+// In development, point to localhost backend
+const API_BASE_URL = import.meta.env.PROD
+  ? '/api'                    // Nginx proxies to backend in Docker
+  : 'http://localhost:8081/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

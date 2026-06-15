@@ -12,7 +12,7 @@ import java.util.Set;
 @Table(name = "sites")
 @Getter
 @Setter
-@ToString(exclude = {"assignedStaff"})
+@ToString(exclude = {"assignedStaff", "yojna"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class SiteEntity {
@@ -45,6 +45,12 @@ public class SiteEntity {
 
     @Column(length = 500)
     private String address;
+
+    /** Parent Yojna (Nikay/Scheme) this site belongs to */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "yojna_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "sites", "description", "department", "startDate", "endDate", "status", "createdAt", "updatedAt"})
+    private YojnaEntity yojna;
 
     @ManyToMany
     @JoinTable(name = "site_assigned_staff",

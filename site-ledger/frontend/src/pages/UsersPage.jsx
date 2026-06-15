@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { getUsers, suspendUser, createUser } from '../api/userApi';
+import { getUsers, suspendUser, createUser, updateUser } from '../api/userApi';
+import { getSites } from '../api/siteApi';
 import { useAuth } from '../context/AuthContext';
 
 const roleColors = {
@@ -8,11 +9,10 @@ const roleColors = {
   OFFICE_ADMIN: 'bg-purple-100 text-purple-800',
   SITE_INCHARGE: 'bg-blue-100 text-blue-800',
   MUNSHI: 'bg-yellow-100 text-yellow-800',
-  SUBCONTRACTOR: 'bg-green-100 text-green-800',
-  SUBCONTRACTOR_ADMIN: 'bg-orange-100 text-orange-800',
+  MATE: 'bg-green-100 text-green-800',
 };
 
-const ROLES = ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN'];
+const ROLES = ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'];
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -29,11 +29,25 @@ export default function UsersPage() {
     email: '',
     fullName: '',
     phone: '',
-    role: 'SUBCONTRACTOR',
+    role: 'MUNSHI',
   });
+
+  // Edit user state
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    role: '',
+    password: '',
+    assignedSiteIds: '',
+  });
+
+  const [allSites, setAllSites] = useState([]);
 
   useEffect(() => {
     fetchUsers();
+    getSites().then(res => setAllSites(res.data || [])).catch(() => {});
   }, []);
 
   const fetchUsers = async () => {
@@ -87,7 +101,56 @@ export default function UsersPage() {
     }
   };
 
-  const canManageUsers = currentUser?.role === 'OWNER' || currentUser?.role === 'SUBCONTRACTOR_ADMIN';
+  const handleEditClick = (user) => {
+    setEditingUser(user);
+    setEditForm({
+      fullName: user.fullName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || '',
+      password: '',
+      assignedSiteIds: user.assignedSiteIds || '',
+    });
+  };
+
+  const toggleSiteAssignment = (siteId) => {
+    const currentIds = editForm.assignedSiteIds
+      ? editForm.assignedSiteIds.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+    const idStr = String(siteId);
+    const updated = currentIds.includes(idStr)
+      ? currentIds.filter(id => id !== idStr)
+      : [...currentIds, idStr];
+    setEditForm({ ...editForm, assignedSiteIds: updated.join(',') });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Only send non-empty fields
+      const payload = {};
+      if (editForm.fullName) payload.fullName = editForm.fullName;
+      if (editForm.email) payload.email = editForm.email;
+      if (editForm.phone) payload.phone = editForm.phone;
+      if (editForm.role) payload.role = editForm.role;
+      if (editForm.password) payload.password = editForm.password;
+      if (editForm.assignedSiteIds) payload.assignedSiteIds = editForm.assignedSiteIds;
+
+      const response = await updateUser(editingUser.id, payload);
+      if (response.success) {
+        setSuccessMessage('User updated successfully');
+        setEditingUser(null);
+        fetchUsers();
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setError(response.message || 'Failed to update user');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update user');
+    }
+  };
+
+  const canManageUsers = currentUser?.role === 'OWNER' || currentUser?.role === 'OFFICE_ADMIN';
 
   if (loading) {
     return (
@@ -208,6 +271,85 @@ export default function UsersPage() {
           </div>
         )}
 
+        {/* Edit User Modal */}
+        {editingUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg mx-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Edit User: {editingUser.username}</h2>
+                <button onClick={() => setEditingUser(null)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+              </div>
+              <form onSubmit={handleEditSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" value={editForm.fullName}
+                      onChange={(e) => setEditForm({...editForm, fullName: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" value={editForm.email}
+                      onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input type="text" value={editForm.phone}
+                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <select value={editForm.role}
+                      onChange={(e) => setEditForm({...editForm, role: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                      {['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'].map(r => (
+                        <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">New Password (leave blank to keep)</label>
+                    <input type="password" value={editForm.password} placeholder="Enter new password"
+                      onChange={(e) => setEditForm({...editForm, password: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Sites</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                    {allSites.length === 0 ? (
+                      <p className="text-sm text-gray-400 col-span-full">No sites available</p>
+                    ) : (
+                      allSites.map(site => {
+                        const isChecked = editForm.assignedSiteIds.split(',').map(s => s.trim()).includes(String(site.id));
+                        return (
+                          <label key={site.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
+                            isChecked ? 'bg-indigo-50 border border-indigo-200' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                          }`}>
+                            <input type="checkbox" checked={isChecked}
+                              onChange={() => toggleSiteAssignment(site.id)}
+                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                            <span className="truncate">{site.siteName}</span>
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                  <input type="hidden" value={editForm.assignedSiteIds} readOnly />
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setEditingUser(null)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                  <button type="submit"
+                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -259,25 +401,35 @@ export default function UsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.phone || 'N/A'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {user.id === currentUser?.userId ? (
-                          <span className="text-gray-400">Current User</span>
-                        ) : canManageUsers && !user.suspended ? (
-                          <button
-                            onClick={() => handleToggleSuspend(user.id, false)}
-                            className="text-red-600 hover:text-red-800 font-medium"
-                          >
-                            Suspend
-                          </button>
-                        ) : canManageUsers && user.suspended ? (
-                          <button
-                            onClick={() => handleToggleSuspend(user.id, true)}
-                            className="text-green-600 hover:text-green-800 font-medium"
-                          >
-                            Activate
-                          </button>
-                        ) : (
-                          <span className="text-gray-400">{user.suspended ? 'Suspended' : 'Active'}</span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {canManageUsers && user.id !== currentUser?.userId && (
+                            <button
+                              onClick={() => handleEditClick(user)}
+                              className="text-indigo-600 hover:text-indigo-800 font-medium"
+                            >
+                              Edit
+                            </button>
+                          )}
+                          {user.id === currentUser?.userId ? (
+                            <span className="text-gray-400">Current User</span>
+                          ) : canManageUsers && !user.suspended ? (
+                            <button
+                              onClick={() => handleToggleSuspend(user.id, false)}
+                              className="text-red-600 hover:text-red-800 font-medium"
+                            >
+                              Suspend
+                            </button>
+                          ) : canManageUsers && user.suspended ? (
+                            <button
+                              onClick={() => handleToggleSuspend(user.id, true)}
+                              className="text-green-600 hover:text-green-800 font-medium"
+                            >
+                              Activate
+                            </button>
+                          ) : (
+                            <span className="text-gray-400">{user.suspended ? 'Suspended' : 'Active'}</span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))

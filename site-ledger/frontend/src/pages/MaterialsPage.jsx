@@ -1,10 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useAuth } from '../context/AuthContext';
 import { getSites } from '../api/siteApi';
 import { getSiteMaterials, createMaterial, purchaseMaterial, shiftMaterial, consumeMaterial } from '../api/materialApi';
 
+function getTimeRemaining(createdAt) {
+  if (!createdAt) return null;
+  const created = new Date(createdAt);
+  const now = new Date();
+  const elapsedMs = now - created;
+  const elapsedHours = elapsedMs / (1000 * 60 * 60);
+  const remainingHours = 24 - elapsedHours;
+
+  if (remainingHours <= 0) return { expired: true, text: 'Expired' };
+  if (remainingHours < 1) {
+    const mins = Math.round(remainingHours * 60);
+    return { expired: false, text: `${mins} min` };
+  }
+  const hrs = Math.floor(remainingHours);
+  const mins = Math.round((remainingHours - hrs) * 60);
+  return { expired: false, text: `${hrs}h ${mins}m` };
+}
+
 export default function MaterialsPage() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [sites, setSites] = useState([]);
   const [selectedSiteId, setSelectedSiteId] = useState(searchParams.get('siteId') || '');
@@ -15,6 +35,8 @@ export default function MaterialsPage() {
   const [error, setError] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
+
+  const isMunshiOrMate = user?.role === 'MUNSHI' || user?.role === 'MATE';
 
   useEffect(() => {
     getSites()
@@ -32,6 +54,17 @@ export default function MaterialsPage() {
         .finally(() => setLoading(false));
     }
   }, [selectedSiteId]);
+
+  // For MUNSHI/MATE: auto-refresh materials every 60s to update remaining time
+  useEffect(() => {
+    if (!selectedSiteId || !isMunshiOrMate) return;
+    const interval = setInterval(() => {
+      getSiteMaterials(selectedSiteId)
+        .then(res => setMaterials(res.data || []))
+        .catch(() => {});
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [selectedSiteId, isMunshiOrMate]);
 
   // Voice input for description
   const startListening = () => {
@@ -108,6 +141,13 @@ export default function MaterialsPage() {
             </button>
           )}
         </div>
+
+        {isMunshiOrMate && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+            <span>⏳</span>
+            <span>You can add material to your assigned site(s). Entries are visible for <strong>24 hours</strong> after creation and cannot be edited.</span>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -202,22 +242,41 @@ export default function MaterialsPage() {
                   <th className="text-right py-3 px-4 font-medium text-gray-500">Consumed</th>
                   <th className="text-right py-3 px-4 font-medium text-gray-500">Balance</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
+                  {isMunshiOrMate && <th className="text-center py-3 px-4 font-medium text-gray-500">Visibility</th>}
                 </tr>
               </thead>
               <tbody>
-                {materials.map((m) => (
-                  <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium">{m.materialName}</td>
-                    <td className="py-3 px-4">{m.unit || '-'}</td>
-                    <td className="py-3 px-4 text-right text-green-600 font-medium">{Number(m.purchasedQty || 0).toFixed(2)}</td>
-                    <td className="py-3 px-4 text-right text-blue-600 font-medium">{Number(m.shiftedQty || 0).toFixed(2)}</td>
-                    <td className="py-3 px-4 text-right text-orange-600 font-medium">{Number(m.consumedQty || 0).toFixed(2)}</td>
-                    <td className="py-3 px-4 text-right text-purple-600 font-bold">{Number(m.balanceQty || 0).toFixed(2)}</td>
-                    <td className="py-3 px-4 text-gray-500 max-w-[200px] truncate" title={m.description || ''}>{m.description || '-'}</td>
-                  </tr>
-                ))}
+                {materials.map((m) => {
+                  const remaining = isMunshiOrMate ? getTimeRemaining(m.createdAt) : null;
+                  return (
+                    <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium">{m.materialName}</td>
+                      <td className="py-3 px-4">{m.unit || '-'}</td>
+                      <td className="py-3 px-4 text-right text-green-600 font-medium">{Number(m.purchasedQty || 0).toFixed(2)}</td>
+                      <td className="py-3 px-4 text-right text-blue-600 font-medium">{Number(m.shiftedQty || 0).toFixed(2)}</td>
+                      <td className="py-3 px-4 text-right text-orange-600 font-medium">{Number(m.consumedQty || 0).toFixed(2)}</td>
+                      <td className="py-3 px-4 text-right text-purple-600 font-bold">{Number(m.balanceQty || 0).toFixed(2)}</td>
+                      <td className="py-3 px-4 text-gray-500 max-w-[200px] truncate" title={m.description || ''}>{m.description || '-'}</td>
+                      {isMunshiOrMate && (
+                        <td className="py-3 px-4 text-center">
+                          {remaining ? (
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                              remaining.expired
+                                ? 'bg-red-100 text-red-700'
+                                : remaining.text.includes('h')
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : 'bg-green-100 text-green-700'
+                            }`}>
+                              {remaining.expired ? '🔴 Expired' : `🟢 ${remaining.text}`}
+                            </span>
+                          ) : '-'}
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
                 {materials.length === 0 && (
-                  <tr><td colSpan={7} className="py-8 text-center text-gray-400">No materials added</td></tr>
+                  <tr><td colSpan={isMunshiOrMate ? 8 : 7} className="py-8 text-center text-gray-400">No materials added</td></tr>
                 )}
               </tbody>
             </table>

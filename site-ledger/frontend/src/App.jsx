@@ -15,7 +15,10 @@ import AdvancesPage from './pages/AdvancesPage';
 import PaymentsPage from './pages/PaymentsPage';
 import DocumentsPage from './pages/DocumentsPage';
 import UsersPage from './pages/UsersPage';
-import SubcontractorWorkPage from './pages/SubcontractorWorkPage';
+import YojnasPage from './pages/YojnasPage';
+import YojnaDetailPage from './pages/YojnaDetailPage';
+import ExpenseCategoriesPage from './pages/ExpenseCategoriesPage';
+import OtherExpensesPage from './pages/OtherExpensesPage';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
@@ -63,20 +66,32 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><DashboardPage /></ProtectedRoute>} />
-      <Route path="/sites" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN']}><SitesPage /></ProtectedRoute>} />
-      <Route path="/sites/:id" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN']}><SiteDetailPage /></ProtectedRoute>} />
+      
+      {/* Yojna Routes */}
+      <Route path="/yojnas" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><YojnasPage /></ProtectedRoute>} />
+      <Route path="/yojnas/:id" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><YojnaDetailPage /></ProtectedRoute>} />
+      
+      {/* Site Routes */}
+      <Route path="/sites" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><SitesPage /></ProtectedRoute>} />
+      <Route path="/sites/:id" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><SiteDetailPage /></ProtectedRoute>} />
+      
+      {/* Other Routes */}
       <Route path="/ledger" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><LedgerPage /></ProtectedRoute>} />
-      <Route path="/materials" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN']}><MaterialsPage /></ProtectedRoute>} />
-      <Route path="/labour" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI']}><LabourPage /></ProtectedRoute>} />
-      <Route path="/machinery" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI']}><MachineryPage /></ProtectedRoute>} />
-      <Route path="/transport" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI']}><TransportPage /></ProtectedRoute>} />
-      <Route path="/expenses" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI']}><ExpensesPage /></ProtectedRoute>} />
-      <Route path="/my-balance" element={<ProtectedRoute allowedRoles={['SITE_INCHARGE', 'MUNSHI']}><BalancePage /></ProtectedRoute>} />
+      <Route path="/materials" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><MaterialsPage /></ProtectedRoute>} />
+      <Route path="/labour" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><LabourPage /></ProtectedRoute>} />
+      <Route path="/machinery" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><MachineryPage /></ProtectedRoute>} />
+      <Route path="/transport" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><TransportPage /></ProtectedRoute>} />
+      <Route path="/expenses" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><ExpensesPage /></ProtectedRoute>} />
+      <Route path="/my-balance" element={<ProtectedRoute allowedRoles={['SITE_INCHARGE', 'MUNSHI', 'MATE']}><BalancePage /></ProtectedRoute>} />
       <Route path="/advances" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><AdvancesPage /></ProtectedRoute>} />
       <Route path="/payments" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><PaymentsPage /></ProtectedRoute>} />
-      <Route path="/documents" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN']}><DocumentsPage /></ProtectedRoute>} />
-      <Route path="/subcontractor-work" element={<ProtectedRoute allowedRoles={['SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN', 'OWNER', 'OFFICE_ADMIN']}><SubcontractorWorkPage /></ProtectedRoute>} />
-      <Route path="/users" element={<ProtectedRoute allowedRoles={['OWNER', 'SUBCONTRACTOR_ADMIN']}><UsersPage /></ProtectedRoute>} />
+      <Route path="/documents" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><DocumentsPage /></ProtectedRoute>} />
+      <Route path="/users" element={<ProtectedRoute allowedRoles={['OWNER']}><UsersPage /></ProtectedRoute>} />
+      
+      {/* New V2 Routes */}
+      <Route path="/expense-categories" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><ExpenseCategoriesPage /></ProtectedRoute>} />
+      <Route path="/other-expenses" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><OtherExpensesPage /></ProtectedRoute>} />
+      
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

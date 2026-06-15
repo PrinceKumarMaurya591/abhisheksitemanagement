@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getSites } from '../api/siteApi';
 import { getSiteDocuments, uploadDocument, downloadDocument, deleteDocument } from '../api/documentApi';
+import Layout from '../components/Layout';
 
 const DOC_TYPES = ['TENDER_NOTICE', 'NIT', 'BOQ', 'CORRIGENDUM', 'DPR', 'ESTIMATE', 'RATE_ANALYSIS', 'AGREEMENT', 'WORK_ORDER', 'LAYOUT_DRAWING', 'STRUCTURAL_DRAWING', 'CROSS_SECTION', 'BEFORE_PHOTO', 'PROGRESS_PHOTO', 'COMPLETION_PHOTO', 'LETTER', 'OTHER'];
 
@@ -115,6 +116,7 @@ export default function DocumentsPage() {
   };
 
   return (
+    <Layout>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
@@ -268,5 +270,6 @@ export default function DocumentsPage() {
         <div className="text-center py-12 text-gray-400">Select a site to view documents</div>
       )}
     </div>
+    </Layout>
   );
 }

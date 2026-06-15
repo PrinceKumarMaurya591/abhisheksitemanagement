@@ -9,7 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
 
-const STAFF_ROLES = ['SITE_INCHARGE', 'MUNSHI'];
+const STAFF_ROLES = ['SITE_INCHARGE', 'MUNSHI', 'MATE'];
 const ALLOWED_SITE_ROLES = ['SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN'];
 
 export default function SiteDetailPage() {
@@ -118,8 +118,17 @@ export default function SiteDetailPage() {
         }`}>{site.status}</span>
       </div>
 
-      {/* Site Info */}
+      {/* Site Info — includes Yojna */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div><span className="text-sm text-gray-500">Yojna / Nikay</span>
+          <p className="font-medium">
+            {site.yojna ? (
+              <Link to={`/yojnas/${site.yojna.id}`} className="text-indigo-600 hover:text-indigo-800">
+                {site.yojna.yojnaName}
+              </Link>
+            ) : '-'}
+          </p>
+        </div>
         <div><span className="text-sm text-gray-500">Work Name</span><p className="font-medium">{site.workName || '-'}</p></div>
         <div><span className="text-sm text-gray-500">Department</span><p className="font-medium">{site.department || '-'}</p></div>
         <div><span className="text-sm text-gray-500">Work Order</span><p className="font-medium">{site.workOrderNumber || '-'}</p></div>
@@ -257,6 +266,7 @@ export default function SiteDetailPage() {
                           <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
                             u.role === 'SITE_INCHARGE' ? 'bg-blue-100 text-blue-700' :
                             u.role === 'MUNSHI' ? 'bg-yellow-100 text-yellow-700' :
+                            u.role === 'MATE' ? 'bg-orange-100 text-orange-700' :
                             u.role === 'SUBCONTRACTOR' ? 'bg-green-100 text-green-700' :
                             'bg-purple-100 text-purple-700'
                           }`}>{u.role}</span>
@@ -288,7 +298,8 @@ export default function SiteDetailPage() {
                     {staff.fullName || staff.username}
                     <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                       staff.role === 'SITE_INCHARGE' ? 'bg-blue-100' :
-                      staff.role === 'MUNSHI' ? 'bg-yellow-100' : 'bg-green-100'
+                      staff.role === 'MUNSHI' ? 'bg-yellow-100' :
+                      staff.role === 'MATE' ? 'bg-orange-100' : 'bg-green-100'
                     }`}>{staff.role}</span>
                   </span>
                 ))}
@@ -313,6 +324,9 @@ export default function SiteDetailPage() {
           </Link>
           <Link to={`/advances?siteId=${id}`} className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
             <span>💰</span><span className="font-medium text-sm">Advances</span>
+          </Link>
+          <Link to={`/other-expenses?level=SITE&siteId=${id}`} className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+            <span>📝</span><span className="font-medium text-sm">Other Expenses</span>
           </Link>
         </div>
       </div>

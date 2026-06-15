@@ -34,15 +34,15 @@ public class SiteController {
             return ResponseEntity.badRequest().body(ApiResponse.error("User not found"));
         }
 
-        // OWNER and OFFICE_ADMIN see all sites
+        // OWNER and OFFICE_ADMIN see all sites (with yojna eagerly fetched for filtering)
         if (user.getRole() == UserEntity.Role.OWNER || user.getRole() == UserEntity.Role.OFFICE_ADMIN) {
-            return ResponseEntity.ok(ApiResponse.success(siteRepository.findAll()));
+            return ResponseEntity.ok(ApiResponse.success(siteRepository.findAllWithYojna()));
         }
 
-        // SITE_STAFF and SUBCONTRACTOR see only assigned sites
+        // SITE_STAFF and SUBCONTRACTOR see only assigned sites (with yojna eagerly fetched)
         if (user.getAssignedSiteIds() != null && !user.getAssignedSiteIds().isEmpty()) {
             List<Long> siteIds = parseSiteIds(user.getAssignedSiteIds());
-            List<SiteEntity> assignedSites = siteRepository.findAllById(siteIds);
+            List<SiteEntity> assignedSites = siteRepository.findAllByIdWithYojna(siteIds);
             return ResponseEntity.ok(ApiResponse.success(assignedSites));
         }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getSites } from '../api/siteApi';
 import { getSitePayments, createPayment } from '../api/paymentApi';
+import Layout from '../components/Layout';
 
 export default function PaymentsPage() {
   const [sites, setSites] = useState([]);
@@ -33,6 +34,7 @@ export default function PaymentsPage() {
   const formatCurrency = (v) => '₹' + Number(v).toLocaleString('en-IN');
 
   return (
+    <Layout>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Payment Tracking</h1>
@@ -113,5 +115,6 @@ export default function PaymentsPage() {
         </div>
       ) : <div className="text-center py-12 text-gray-400">Select a site to view payments</div>}
     </div>
+    </Layout>
   );
 }

@@ -35,17 +35,20 @@ public class DocumentController {
     private final UserRepository userRepository;
     private final PermissionRepository permissionRepository;
     private final AuditService auditService;
+    private final com.siteledger.repository.SiteRepository siteRepository;
     private final Path uploadDir;
 
     public DocumentController(DocumentRepository documentRepository,
                               UserRepository userRepository,
                               PermissionRepository permissionRepository,
                               AuditService auditService,
+                              com.siteledger.repository.SiteRepository siteRepository,
                               @Value("${app.upload.dir}") String uploadDirPath) {
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
         this.permissionRepository = permissionRepository;
         this.auditService = auditService;
+        this.siteRepository = siteRepository;
         this.uploadDir = Paths.get(uploadDirPath).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.uploadDir);
@@ -135,6 +138,7 @@ public class DocumentController {
         doc.setDescription(description);
         doc.setUploadedBy(username);
         doc.setUser(user);
+        doc.setSite(siteRepository.findById(siteId).orElse(null));
 
         DocumentEntity saved = documentRepository.save(doc);
 

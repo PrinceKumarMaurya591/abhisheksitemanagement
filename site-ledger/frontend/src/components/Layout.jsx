@@ -4,19 +4,21 @@ import { useAuth } from '../context/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: '📊', roles: ['OWNER', 'OFFICE_ADMIN'] },
-  { name: 'Sites', href: '/sites', icon: '🏗️', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN'] },
+  { name: 'Nikay / Yojna', href: '/yojnas', icon: '📋', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Sites', href: '/sites', icon: '🏗️', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Ledger', href: '/ledger', icon: '📒', roles: ['OWNER', 'OFFICE_ADMIN'] },
-  { name: 'Materials', href: '/materials', icon: '📦', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN'] },
-  { name: 'Labour', href: '/labour', icon: '👷', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI'] },
-  { name: 'Machinery', href: '/machinery', icon: '🚜', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI'] },
-  { name: 'Transport', href: '/transport', icon: '🚛', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI'] },
-  { name: 'Expenses', href: '/expenses', icon: '💸', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI'] },
-  { name: 'My Balance', href: '/my-balance', icon: '📊', roles: ['SITE_INCHARGE', 'MUNSHI'] },
+  { name: 'Materials', href: '/materials', icon: '📦', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Labour', href: '/labour', icon: '👷', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Machinery', href: '/machinery', icon: '🚜', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Transport', href: '/transport', icon: '🚛', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Expenses', href: '/expenses', icon: '💸', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Other Expenses', href: '/other-expenses', icon: '📝', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'My Balance', href: '/my-balance', icon: '📊', roles: ['SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Advances', href: '/advances', icon: '💰', roles: ['OWNER', 'OFFICE_ADMIN'] },
   { name: 'Payments', href: '/payments', icon: '💳', roles: ['OWNER', 'OFFICE_ADMIN'] },
-  { name: 'Documents', href: '/documents', icon: '📄', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN'] },
-  { name: 'My Work', href: '/subcontractor-work', icon: '🔧', roles: ['SUBCONTRACTOR', 'SUBCONTRACTOR_ADMIN', 'OWNER', 'OFFICE_ADMIN'] },
-  { name: 'Users', href: '/users', icon: '👥', roles: ['OWNER', 'SUBCONTRACTOR_ADMIN'] },
+  { name: 'Documents', href: '/documents', icon: '📄', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Expense Categories', href: '/expense-categories', icon: '🏷️', roles: ['OWNER', 'OFFICE_ADMIN'] },
+  { name: 'Users', href: '/users', icon: '👥', roles: ['OWNER'] },
 ];
 
 export default function Layout({ children }) {

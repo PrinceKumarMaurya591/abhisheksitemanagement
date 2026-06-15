@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getSites } from '../api/siteApi';
 import { getSiteLedger, createLedgerEntry } from '../api/ledgerApi';
+import Layout from '../components/Layout';
 
 const CATEGORIES = ['MATERIAL', 'LABOUR', 'DIESEL', 'TRANSPORT', 'MACHINERY', 'TENDER', 'DEPARTMENT', 'OTHER'];
 
@@ -51,6 +52,7 @@ export default function LedgerPage() {
   const formatCurrency = (v) => '₹' + Number(v).toLocaleString('en-IN');
 
   return (
+    <Layout>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Site Ledger</h1>
@@ -152,5 +154,6 @@ export default function LedgerPage() {
         <div className="text-center py-12 text-gray-400">Select a site to view its ledger</div>
       )}
     </div>
+    </Layout>
   );
 }

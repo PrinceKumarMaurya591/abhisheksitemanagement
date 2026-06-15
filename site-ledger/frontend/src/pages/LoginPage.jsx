@@ -83,9 +83,11 @@ export default function LoginPage() {
 
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <p className="text-xs text-gray-500 font-medium mb-2">Demo Credentials:</p>
-          <p className="text-xs text-gray-400">Admin: admin / admin123</p>
-          <p className="text-xs text-gray-400">Manager: manager / manager123</p>
-          <p className="text-xs text-gray-400">Site Incharge: siteincharge / site123</p>
+          <p className="text-xs text-gray-400">👑 Owner: owner / owner123</p>
+          <p className="text-xs text-gray-400">📋 Admin: admin / admin123</p>
+          <p className="text-xs text-gray-400">🏗️ Site Incharge: siteincharge / site123</p>
+          <p className="text-xs text-gray-400">📝 Munshi: munshi / munshi123</p>
+          <p className="text-xs text-gray-400">🔧 Mate: mate / mate123</p>
         </div>
       </div>
     </div>

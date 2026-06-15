@@ -50,7 +50,18 @@ public class LabourController {
             }
         }
 
-        return ResponseEntity.ok(ApiResponse.success(labourRepository.findBySiteIdOrderByDateDesc(siteId)));
+        List<LabourEntity> labourEntries = labourRepository.findBySiteIdOrderByDateDesc(siteId);
+
+        // MUNSHI/MATE can only see entries they created themselves, within 24-hour window
+        if (user.getRole() == UserEntity.Role.MUNSHI || user.getRole() == UserEntity.Role.MATE) {
+            labourEntries = labourEntries.stream()
+                    .filter(l -> username.equals(l.getCreatedBy()))
+                    .filter(l -> l.getCreatedAt() != null
+                            && java.time.Duration.between(l.getCreatedAt(), java.time.LocalDateTime.now()).toHours() < 24)
+                    .toList();
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(labourEntries));
     }
 
     @PostMapping

@@ -9,12 +9,16 @@ import com.siteledger.repository.MaterialTransactionRepository;
 import com.siteledger.repository.PermissionRepository;
 import com.siteledger.repository.UserRepository;
 import com.siteledger.service.AuditService;
+import com.siteledger.service.TimeAccessService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/materials")
@@ -56,12 +60,23 @@ public class MaterialController {
             }
         }
 
-        return ResponseEntity.ok(ApiResponse.success(materialRepository.findBySiteId(siteId)));
+        List<MaterialEntity> materials = materialRepository.findBySiteId(siteId);
+
+        // MUNSHI/MATE can only see entries they created themselves, within 24-hour window
+        if (user.getRole() == UserEntity.Role.MUNSHI || user.getRole() == UserEntity.Role.MATE) {
+            materials = materials.stream()
+                    .filter(m -> username.equals(m.getCreatedBy()))
+                    .filter(m -> m.getCreatedAt() != null
+                            && java.time.Duration.between(m.getCreatedAt(), java.time.LocalDateTime.now()).toHours() < 24)
+                    .toList();
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(materials));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<MaterialEntity>> createMaterial(@RequestBody MaterialEntity material,
-                                                                       Authentication auth) {
+                                                                        Authentication auth) {
         String username = auth.getName();
         UserEntity user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
@@ -77,10 +92,28 @@ public class MaterialController {
             }
         }
 
+        // For MUNSHI/MATE: validate they are assigned to the target site
+        if (user.getRole() == UserEntity.Role.MUNSHI || user.getRole() == UserEntity.Role.MATE) {
+            if (material.getSite() == null || material.getSite().getId() == null) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("Site is required"));
+            }
+            String assignedSites = user.getAssignedSiteIds();
+            if (assignedSites == null || assignedSites.isBlank()) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("You are not assigned to any site"));
+            }
+            Set<String> assignedSiteSet = Arrays.stream(assignedSites.split(","))
+                    .map(String::trim)
+                    .collect(Collectors.toSet());
+            if (!assignedSiteSet.contains(String.valueOf(material.getSite().getId()))) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("Access denied: You can only add material to your assigned site(s)"));
+            }
+        }
+
         material.setPurchasedQty(material.getPurchasedQty() != null ? material.getPurchasedQty() : BigDecimal.ZERO);
         material.setShiftedQty(BigDecimal.ZERO);
         material.setConsumedQty(BigDecimal.ZERO);
         material.setBalanceQty(material.getPurchasedQty());
+        material.setCreatedBy(username);
 
         MaterialEntity saved = materialRepository.save(material);
 

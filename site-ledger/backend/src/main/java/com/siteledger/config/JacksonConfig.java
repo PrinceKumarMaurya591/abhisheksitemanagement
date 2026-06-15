@@ -21,6 +21,8 @@ public class JacksonConfig {
         Hibernate6Module hibernate6Module = new Hibernate6Module();
         // Don't force lazy loading during serialization - serialize only what's already loaded
         hibernate6Module.disable(Hibernate6Module.Feature.FORCE_LAZY_LOADING);
+        // Serialize the id for lazy associations that are not loaded (e.g., yojna on site)
+        hibernate6Module.enable(Hibernate6Module.Feature.SERIALIZE_IDENTIFIER_FOR_LAZY_NOT_LOADED_OBJECTS);
         mapper.registerModule(hibernate6Module);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;

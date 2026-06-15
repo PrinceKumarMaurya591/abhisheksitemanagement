@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { getOwnerDashboard } from '../api/dashboardApi';
 import { getSites } from '../api/siteApi';
 import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
 
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
 
-function StatCard({ title, value, icon, color }) {
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+function StatCard({ title, value, icon, color, href }) {
+  const card = (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-500 font-medium">{title}</p>
@@ -20,6 +21,11 @@ function StatCard({ title, value, icon, color }) {
       </div>
     </div>
   );
+
+  if (href) {
+    return <Link to={href}>{card}</Link>;
+  }
+  return card;
 }
 
 export default function DashboardPage() {
@@ -56,15 +62,15 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <Layout><div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
+      </div></Layout>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
+      <Layout><div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div></Layout>
     );
   }
 
@@ -80,6 +86,7 @@ export default function DashboardPage() {
   ];
 
   return (
+    <Layout>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Owner Dashboard</h1>
@@ -91,16 +98,16 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards — all clickable, navigate to the relevant section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Sites" value={dashboard?.totalSites || 0} icon="🏗️" color="#4F46E5" />
-        <StatCard title="Running Sites" value={dashboard?.runningSites || 0} icon="🔄" color="#10B981" />
-        <StatCard title="Completed Sites" value={dashboard?.completedSites || 0} icon="✅" color="#F59E0B" />
-        <StatCard title="Total Contract Value" value={formatCurrency(dashboard?.totalContractValue)} icon="📋" color="#8B5CF6" />
-        <StatCard title="Total Received" value={formatCurrency(dashboard?.totalReceived)} icon="💰" color="#10B981" />
-        <StatCard title="Total Pending" value={formatCurrency(dashboard?.totalPending)} icon="⏳" color="#EF4444" />
-        <StatCard title="Total Expense" value={formatCurrency(dashboard?.totalExpense)} icon="💸" color="#F59E0B" />
-        <StatCard title="Outstanding Advances" value={formatCurrency(dashboard?.outstandingAdvances)} icon="📤" color="#EC4899" />
+        <StatCard title="Total Sites" value={dashboard?.totalSites || 0} icon="🏗️" color="#4F46E5" href="/sites" />
+        <StatCard title="Running Sites" value={dashboard?.runningSites || 0} icon="🔄" color="#10B981" href="/sites" />
+        <StatCard title="Completed Sites" value={dashboard?.completedSites || 0} icon="✅" color="#F59E0B" href="/sites" />
+        <StatCard title="Total Contract Value" value={formatCurrency(dashboard?.totalContractValue)} icon="📋" color="#8B5CF6" href="/sites" />
+        <StatCard title="Total Received" value={formatCurrency(dashboard?.totalReceived)} icon="💰" color="#10B981" href="/payments" />
+        <StatCard title="Total Pending" value={formatCurrency(dashboard?.totalPending)} icon="⏳" color="#EF4444" href="/payments" />
+        <StatCard title="Total Expense" value={formatCurrency(dashboard?.totalExpense)} icon="💸" color="#F59E0B" href="/expenses" />
+        <StatCard title="Outstanding Advances" value={formatCurrency(dashboard?.outstandingAdvances)} icon="📤" color="#EC4899" href="/advances" />
       </div>
 
       {/* Profit/Loss Highlight */}
@@ -204,5 +211,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </Layout>
   );
 }
