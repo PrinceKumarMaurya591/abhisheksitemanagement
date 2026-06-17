@@ -1,0 +1,6 @@
+site-ledger-key.pem
+.github/
+
+# Don't ignore GitHub Actions workflows
+!.github/workflows/
+!.github/workflows/*

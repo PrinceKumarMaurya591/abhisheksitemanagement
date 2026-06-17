@@ -3,18 +3,21 @@ name: 🚀 Deploy Site Ledger to AWS EC2
 on:
   push:
     branches: [main]
-  workflow_dispatch:   # Manual trigger from GitHub UI
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REGISTRY: ${{ vars.ECR_REGISTRY || 'public.ecr.aws' }}
   BACKEND_IMAGE: site-ledger-backend
   FRONTEND_IMAGE: site-ledger-frontend
+  PROJECT_DIR: site-ledger
 
 jobs:
   test:
     name: 🧪 Run Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.PROJECT_DIR }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,9 +28,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+          cache-dependency-path: ${{ env.PROJECT_DIR }}/backend/pom.xml
 
       - name: Run Backend Tests
-        working-directory: ./backend
+        working-directory: ${{ env.PROJECT_DIR }}/backend
         run: mvn test -B
 
       - name: Set up Node.js 22
@@ -35,10 +39,10 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: './frontend/package-lock.json'
+          cache-dependency-path: ${{ env.PROJECT_DIR }}/frontend/package-lock.json
 
       - name: Run Frontend Lint
-        working-directory: ./frontend
+        working-directory: ${{ env.PROJECT_DIR }}/frontend
         run: |
           npm ci
           npm run lint 2>/dev/null || echo "No lint script configured"
@@ -67,14 +71,15 @@ jobs:
       - name: Set Image Tags
         id: tags
         run: |
+          ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          echo "BACKEND_TAG=${{ steps.login-ecr.outputs.registry }}/${{ env.BACKEND_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "BACKEND_LATEST=${{ steps.login-ecr.outputs.registry }}/${{ env.BACKEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
-          echo "FRONTEND_TAG=${{ steps.login-ecr.outputs.registry }}/${{ env.FRONTEND_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "FRONTEND_LATEST=${{ steps.login-ecr.outputs.registry }}/${{ env.FRONTEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+          echo "BACKEND_TAG=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.BACKEND_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "BACKEND_LATEST=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.BACKEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.FRONTEND_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "FRONTEND_LATEST=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.FRONTEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
 
       - name: Build & Push Backend Image
-        working-directory: ./backend
+        working-directory: ${{ env.PROJECT_DIR }}/backend
         run: |
           docker build -t ${{ steps.tags.outputs.BACKEND_TAG }} .
           docker tag ${{ steps.tags.outputs.BACKEND_TAG }} ${{ steps.tags.outputs.BACKEND_LATEST }}
@@ -82,7 +87,7 @@ jobs:
           docker push ${{ steps.tags.outputs.BACKEND_LATEST }}
 
       - name: Build & Push Frontend Image
-        working-directory: ./frontend
+        working-directory: ${{ env.PROJECT_DIR }}/frontend
         run: |
           docker build -t ${{ steps.tags.outputs.FRONTEND_TAG }} .
           docker tag ${{ steps.tags.outputs.FRONTEND_TAG }} ${{ steps.tags.outputs.FRONTEND_LATEST }}
@@ -118,8 +123,7 @@ jobs:
           port: 22
           script: |
             set -e
-
-            cd /home/ubuntu/site-ledger
+            cd /home/ubuntu/app
 
             echo "🔐 Logging into ECR..."
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
