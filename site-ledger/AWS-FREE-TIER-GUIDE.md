@@ -89,6 +89,8 @@ sudo apt install -y docker.io docker-compose-v2
 sudo systemctl enable docker
 sudo systemctl start docker
 
+
+
 # Apne user ko Docker group mein add karo (sudo ki zaroorat nahi hogi)
 sudo usermod -aG docker ubuntu
 
