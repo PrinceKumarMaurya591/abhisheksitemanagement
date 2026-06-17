@@ -16,6 +16,7 @@ com/siteledger/controller/MaterialController$1.class
 com/siteledger/dto/JwtResponse.class
 com/siteledger/entity/MaterialEntity.class
 com/siteledger/service/TimeAccessService$1.class
+com/siteledger/entity/AdvanceEntity$PaymentType.class
 com/siteledger/entity/OtherExpenseEntity.class
 com/siteledger/service/DashboardService.class
 com/siteledger/security/JwtAuthenticationFilter.class

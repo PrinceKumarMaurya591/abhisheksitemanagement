@@ -75,6 +75,6 @@ public class SiteEntity {
     }
 
     public enum SiteStatus {
-        ACTIVE, COMPLETED, ON_HOLD, CANCELLED
+        ACTIVE, COMPLETED, ON_HOLD, CANCELLED, ARCHIVED
     }
 }

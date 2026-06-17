@@ -3,9 +3,11 @@ package com.siteledger.controller;
 import com.siteledger.dto.ApiResponse;
 import com.siteledger.entity.AdvanceEntity;
 import com.siteledger.entity.AdvanceExpenseEntity;
+import com.siteledger.entity.LedgerEntryEntity;
 import com.siteledger.entity.UserEntity;
 import com.siteledger.repository.AdvanceExpenseRepository;
 import com.siteledger.repository.AdvanceRepository;
+import com.siteledger.repository.LedgerEntryRepository;
 import com.siteledger.repository.PermissionRepository;
 import com.siteledger.repository.UserRepository;
 import com.siteledger.service.AuditService;
@@ -14,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -26,15 +29,19 @@ public class AdvanceController {
     private final PermissionRepository permissionRepository;
     private final AuditService auditService;
 
+    private final LedgerEntryRepository ledgerEntryRepository;
+
     public AdvanceController(AdvanceRepository advanceRepository,
                              AdvanceExpenseRepository expenseRepository,
                              UserRepository userRepository,
                              PermissionRepository permissionRepository,
+                             LedgerEntryRepository ledgerEntryRepository,
                              AuditService auditService) {
         this.advanceRepository = advanceRepository;
         this.expenseRepository = expenseRepository;
         this.userRepository = userRepository;
         this.permissionRepository = permissionRepository;
+        this.ledgerEntryRepository = ledgerEntryRepository;
         this.auditService = auditService;
     }
 
@@ -77,10 +84,59 @@ public class AdvanceController {
         advance.setUser(user);
         AdvanceEntity saved = advanceRepository.save(advance);
 
+        // Auto-create a ledger entry (DEBIT) to track advance in site expenditure
+        LedgerEntryEntity ledgerEntry = new LedgerEntryEntity();
+        ledgerEntry.setEntryDate(advance.getDate() != null ? advance.getDate() : LocalDate.now());
+        String personInfo = advance.getPersonName() != null ? advance.getPersonName() : "Site";
+        String paymentTypeLabel = advance.getPaymentType() != null ? advance.getPaymentType() : "PERSON";
+        ledgerEntry.setParticulars("Advance paid to " + personInfo + " (" + paymentTypeLabel + ")"
+                + (advance.getPurpose() != null ? " - " + advance.getPurpose() : ""));
+        ledgerEntry.setCategory(LedgerEntryEntity.Category.OTHER);
+        ledgerEntry.setAmount(advance.getAmount());
+        ledgerEntry.setEntryType(LedgerEntryEntity.EntryType.DEBIT);
+        ledgerEntry.setSite(advance.getSite());
+        ledgerEntry.setUser(user);
+        ledgerEntryRepository.save(ledgerEntry);
+
         auditService.logCreate(username, user.getRole().name(), "ADVANCE", saved.getId(),
                 saved.getSite() != null ? saved.getSite().getId() : null);
 
         return ResponseEntity.ok(ApiResponse.success("Advance created", saved));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<AdvanceEntity>> updateAdvance(@PathVariable Long id,
+                                                                     @RequestBody AdvanceEntity advance,
+                                                                     Authentication auth) {
+        String username = auth.getName();
+        UserEntity user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("User not found"));
+        }
+
+        return advanceRepository.findById(id).map(existing -> {
+            advance.setId(id);
+            advance.setCreatedAt(existing.getCreatedAt());
+            advance.setUser(existing.getUser());
+            if (advance.getStatus() == null) {
+                advance.setStatus(existing.getStatus());
+            }
+            if (advance.getSettledAmount() == null) {
+                advance.setSettledAmount(existing.getSettledAmount());
+            }
+
+            return ResponseEntity.ok(ApiResponse.success("Advance updated",
+                    advanceRepository.save(advance)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteAdvance(@PathVariable Long id, Authentication auth) {
+        if (!advanceRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        advanceRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Advance deleted", null));
     }
 
     @PostMapping("/{advanceId}/expense")

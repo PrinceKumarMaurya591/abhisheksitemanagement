@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { getMyWork, getSiteWork, getSubcontractorWork, createWorkEntry, updatePaymentStatus, deleteWorkEntry } from '../api/subcontractorApi';
@@ -231,6 +232,9 @@ export default function SubcontractorWorkPage() {
   return (
     <Layout>
       <div className="space-y-6">
+        <div className="flex items-center gap-3 mb-2">
+          <Link to="/sites" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Sites</Link>
+        </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">

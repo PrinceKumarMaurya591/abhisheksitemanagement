@@ -29,6 +29,30 @@ public class LabourEntity {
     @Column(nullable = false)
     private LocalDate date;
 
+    /** Check-in time (attendance), e.g. "09:00" */
+    @Column(length = 10)
+    private String checkIn;
+
+    /** Check-out time (attendance), e.g. "17:00" */
+    @Column(length = 10)
+    private String checkOut;
+
+    /** Hours worked (auto-calculated from check-in/check-out) */
+    @Column(precision = 6, scale = 2)
+    private BigDecimal hoursWorked;
+
+    /** Number of workers/attendance count for this entry */
+    @Column(precision = 6, scale = 0)
+    private Integer attendanceCount = 1;
+
+    /** Wage type: DAILY_WAGE, MONTHLY, CONTRACT, PIECE_RATE */
+    @Column(length = 20)
+    private String wageType;
+
+    /** Rate per unit (per day/hour/piece) */
+    @Column(precision = 12, scale = 2)
+    private BigDecimal rate;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 

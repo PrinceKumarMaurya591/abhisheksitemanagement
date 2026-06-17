@@ -17,8 +17,8 @@ import DocumentsPage from './pages/DocumentsPage';
 import UsersPage from './pages/UsersPage';
 import YojnasPage from './pages/YojnasPage';
 import YojnaDetailPage from './pages/YojnaDetailPage';
-import ExpenseCategoriesPage from './pages/ExpenseCategoriesPage';
-import OtherExpensesPage from './pages/OtherExpensesPage';
+
+import StaffDashboard from './pages/StaffDashboard';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
@@ -66,6 +66,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><DashboardPage /></ProtectedRoute>} />
+      <Route path="/my-sites" element={<ProtectedRoute allowedRoles={['SITE_INCHARGE', 'MUNSHI', 'MATE']}><StaffDashboard /></ProtectedRoute>} />
       
       {/* Yojna Routes */}
       <Route path="/yojnas" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><YojnasPage /></ProtectedRoute>} />
@@ -88,9 +89,6 @@ function AppRoutes() {
       <Route path="/documents" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><DocumentsPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute allowedRoles={['OWNER']}><UsersPage /></ProtectedRoute>} />
       
-      {/* New V2 Routes */}
-      <Route path="/expense-categories" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><ExpenseCategoriesPage /></ProtectedRoute>} />
-      <Route path="/other-expenses" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><OtherExpensesPage /></ProtectedRoute>} />
       
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getOwnerDashboard } from '../api/dashboardApi';
-import { getSites } from '../api/siteApi';
+import { getSites, updateSiteStatus, archiveSite, restoreSite } from '../api/siteApi';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import {
@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     loadData();
@@ -50,6 +51,21 @@ export default function DashboardPage() {
       setError('Failed to load dashboard data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (siteId, newStatus) => {
+    try {
+      if (newStatus === 'ARCHIVED') {
+        await archiveSite(siteId);
+      } else if (newStatus === 'ACTIVE' && sites.find(s => s.id === siteId)?.status === 'ARCHIVED') {
+        await restoreSite(siteId);
+      } else {
+        await updateSiteStatus(siteId, { status: newStatus });
+      }
+      loadData();
+    } catch (err) {
+      alert('Failed to update site');
     }
   };
 
@@ -74,6 +90,22 @@ export default function DashboardPage() {
     );
   }
 
+  // Filter sites by status for the tabbed view
+  const runningSites = (sites || []).filter(s => s.status === 'ACTIVE');
+  const completedSites = (sites || []).filter(s => s.status === 'COMPLETED');
+  const holdSites = (sites || []).filter(s => s.status === 'ON_HOLD');
+  const cancelledSites = (sites || []).filter(s => s.status === 'CANCELLED');
+
+  // Combine active statuses for the "active" view (exclude cancelled/archived)
+  const activeSites = (sites || []).filter(s =>
+    s.status !== 'CANCELLED' && s.status !== 'ARCHIVED'
+  );
+
+  let displaySites = activeSites;
+  if (activeTab === 'running') displaySites = runningSites;
+  else if (activeTab === 'completed') displaySites = completedSites;
+  else if (activeTab === 'hold') displaySites = holdSites;
+
   const siteStatusData = [
     { name: 'Running', value: dashboard?.runningSites || 0 },
     { name: 'Completed', value: dashboard?.completedSites || 0 },
@@ -84,6 +116,19 @@ export default function DashboardPage() {
     { name: 'Labour', amount: Number(dashboard?.totalLabourCost || 0) },
     { name: 'Other', amount: Number(dashboard?.totalExpense || 0) - Number(dashboard?.totalMaterialCost || 0) - Number(dashboard?.totalLabourCost || 0) },
   ];
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      ACTIVE: 'bg-green-100 text-green-700',
+      COMPLETED: 'bg-blue-100 text-blue-700',
+      ON_HOLD: 'bg-yellow-100 text-yellow-700',
+      CANCELLED: 'bg-red-100 text-red-700',
+      ARCHIVED: 'bg-gray-200 text-gray-600',
+    };
+    return styles[status] || 'bg-gray-100 text-gray-700';
+  };
+
+  const canManage = true; // Dashboard is for OWNER/OFFICE_ADMIN only
 
   return (
     <Layout>
@@ -98,7 +143,7 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* KPI Cards — all clickable, navigate to the relevant section */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Sites" value={dashboard?.totalSites || 0} icon="🏗️" color="#4F46E5" href="/sites" />
         <StatCard title="Running Sites" value={dashboard?.runningSites || 0} icon="🔄" color="#10B981" href="/sites" />
@@ -165,9 +210,41 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Sites */}
+      {/* Sites Section with Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">All Sites</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <h3 className="text-lg font-semibold text-gray-900">Sites</h3>
+            {/* Tab buttons */}
+            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <button onClick={() => setActiveTab('all')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  activeTab === 'all' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                All Active ({activeSites.length})
+              </button>
+              <button onClick={() => setActiveTab('running')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  activeTab === 'running' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                Running ({runningSites.length})
+              </button>
+              <button onClick={() => setActiveTab('completed')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  activeTab === 'completed' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                Completed ({completedSites.length})
+              </button>
+              <button onClick={() => setActiveTab('hold')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  activeTab === 'hold' ? 'bg-white text-yellow-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                On Hold ({holdSites.length})
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -176,34 +253,63 @@ export default function DashboardPage() {
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Work Name</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Contract Value</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Action</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {sites.map((site) => (
+              {displaySites.map((site) => (
                 <tr key={site.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 font-medium">{site.siteName}</td>
                   <td className="py-3 px-4 text-gray-600">{site.workName || '-'}</td>
                   <td className="py-3 px-4">{formatCurrency(site.contractValue)}</td>
                   <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      site.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                      site.status === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(site.status)}`}>
                       {site.status}
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <Link to={`/sites/${site.id}`} className="text-indigo-600 hover:text-indigo-800 font-medium">
-                      View →
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link to={`/sites/${site.id}`} className="text-indigo-600 hover:text-indigo-800 font-medium text-xs">
+                        View →
+                      </Link>
+                      <Link to={`/sites/${site.id}`}
+                        className="text-blue-600 hover:text-blue-800 text-xs font-medium">Edit</Link>
+                      {site.status === 'ACTIVE' && (
+                        <button onClick={() => handleStatusChange(site.id, 'ON_HOLD')}
+                          className="text-yellow-600 hover:text-yellow-800 text-xs font-medium bg-yellow-50 px-2 py-1 rounded">
+                          ⏸ Hold
+                        </button>
+                      )}
+                      {site.status === 'ON_HOLD' && (
+                        <button onClick={() => handleStatusChange(site.id, 'ACTIVE')}
+                          className="text-blue-600 hover:text-blue-800 text-xs font-medium bg-blue-50 px-2 py-1 rounded">
+                          ▶ Resume
+                        </button>
+                      )}
+                      {site.status === 'COMPLETED' && (
+                        <button onClick={() => handleStatusChange(site.id, 'ACTIVE')}
+                          className="text-orange-600 hover:text-orange-800 text-xs font-medium bg-orange-50 px-2 py-1 rounded">
+                          ↻ Reopen
+                        </button>
+                      )}
+                      {site.status !== 'ARCHIVED' && (
+                        <button onClick={() => handleStatusChange(site.id, 'ARCHIVED')}
+                          className="text-gray-600 hover:text-gray-800 text-xs font-medium bg-gray-50 px-2 py-1 rounded">
+                          🗂️ Archive
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
-              {sites.length === 0 && (
+              {displaySites.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-400">No sites created yet</td>
+                  <td colSpan={5} className="py-8 text-center text-gray-400">
+                    {activeTab === 'all' ? 'No active sites. Create your first site!' :
+                     activeTab === 'running' ? 'No running sites.' :
+                     activeTab === 'completed' ? 'No completed sites.' :
+                     'No sites on hold.'}
+                  </td>
                 </tr>
               )}
             </tbody>

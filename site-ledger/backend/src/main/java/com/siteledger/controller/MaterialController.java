@@ -191,9 +191,52 @@ public class MaterialController {
         return ResponseEntity.ok(ApiResponse.success("Transaction recorded", saved));
     }
 
+    @GetMapping("/transactions/site/{siteId}")
+    public ResponseEntity<ApiResponse<List<MaterialTransactionEntity>>> getSiteMaterialTransactions(
+            @PathVariable Long siteId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                transactionRepository.findBySiteIdOrderByTransactionDateDesc(siteId)));
+    }
+
     @GetMapping("/transactions/material/{materialId}")
     public ResponseEntity<ApiResponse<List<MaterialTransactionEntity>>> getMaterialTransactions(
             @PathVariable Long materialId) {
-        return ResponseEntity.ok(ApiResponse.success(transactionRepository.findByMaterialIdOrderByTransactionDateDesc(materialId)));
+        return ResponseEntity.ok(ApiResponse.success(
+                transactionRepository.findByMaterialIdOrderByTransactionDateDesc(materialId)));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<MaterialEntity>> updateMaterial(
+            @PathVariable Long id, @RequestBody MaterialEntity material, Authentication auth) {
+        String username = auth.getName();
+        return materialRepository.findById(id).map(existing -> {
+            material.setId(id);
+            material.setCreatedAt(existing.getCreatedAt());
+            material.setCreatedBy(existing.getCreatedBy());
+
+            // Preserve auto-calculated fields
+            BigDecimal purchased = material.getPurchasedQty() != null ? material.getPurchasedQty() : existing.getPurchasedQty();
+            BigDecimal shifted = material.getShiftedQty() != null ? material.getShiftedQty() : existing.getShiftedQty();
+            BigDecimal consumed = material.getConsumedQty() != null ? material.getConsumedQty() : existing.getConsumedQty();
+            material.setPurchasedQty(purchased);
+            material.setShiftedQty(shifted);
+            material.setConsumedQty(consumed);
+            material.setBalanceQty(purchased.subtract(shifted).subtract(consumed));
+
+            return ResponseEntity.ok(ApiResponse.success("Material updated",
+                    materialRepository.save(material)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteMaterial(@PathVariable Long id, Authentication auth) {
+        String username = auth.getName();
+        UserEntity user = userRepository.findByUsername(username).orElse(null);
+
+        if (user != null && (user.getRole() == UserEntity.Role.OWNER || user.getRole() == UserEntity.Role.OFFICE_ADMIN)) {
+            materialRepository.deleteById(id);
+            return ResponseEntity.ok(ApiResponse.success("Material deleted", null));
+        }
+        return ResponseEntity.badRequest().body(ApiResponse.error("Access denied"));
     }
 }

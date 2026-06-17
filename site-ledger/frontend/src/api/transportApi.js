@@ -1,7 +1,21 @@
 import api from './axios';
 
-export const getSiteTransport = (siteId) =>
-  api.get(`/transport/site/${siteId}`).then(res => res.data);
+export const getSiteTransport = async (siteId) => {
+  const response = await api.get(`/transport/site/${siteId}`);
+  return response.data;
+};
 
-export const createTransport = (data) =>
-  api.post('/transport', data).then(res => res.data);
+export const createTransport = async (entry) => {
+  const response = await api.post('/transport', entry);
+  return response.data;
+};
+
+export const updateTransport = async (id, entry) => {
+  const response = await api.put(`/transport/${id}`, entry);
+  return response.data;
+};
+
+export const deleteTransport = async (id) => {
+  const response = await api.delete(`/transport/${id}`);
+  return response.data;
+};

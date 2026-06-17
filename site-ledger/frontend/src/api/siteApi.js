@@ -25,6 +25,21 @@ export const deleteSite = async (id) => {
   return response.data;
 };
 
+export const archiveSite = async (id) => {
+  const response = await api.put(`/sites/${id}/archive`, {});
+  return response.data;
+};
+
+export const restoreSite = async (id) => {
+  const response = await api.put(`/sites/${id}/restore`, {});
+  return response.data;
+};
+
+export const getArchivedSites = async () => {
+  const response = await api.get('/sites/archived');
+  return response.data;
+};
+
 export const updateSiteStatus = async (id, statusData) => {
   const response = await api.put(`/sites/${id}/status`, statusData);
   return response.data;

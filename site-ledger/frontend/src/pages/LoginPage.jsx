@@ -18,7 +18,13 @@ export default function LoginPage() {
     try {
       const response = await login(username, password);
       if (response.success) {
-        navigate('/dashboard');
+        // Redirect based on role
+        const role = response.data?.role;
+        if (role === 'SITE_INCHARGE' || role === 'MUNSHI' || role === 'MATE') {
+          navigate('/my-sites');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         setError(response.message || 'Login failed');
       }

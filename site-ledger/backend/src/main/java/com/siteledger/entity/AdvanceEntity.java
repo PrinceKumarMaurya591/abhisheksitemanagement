@@ -52,6 +52,10 @@ public class AdvanceEntity {
     @JsonIgnore
     private UserEntity user;
 
+    /** Payment type: PERSON (person-specific), SITE (to site), OTHER (supervisor, driver, etc.) */
+    @Column(length = 20)
+    private String paymentType = "PERSON";
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -70,5 +74,9 @@ public class AdvanceEntity {
 
     public enum AdvanceStatus {
         OPEN, SETTLED
+    }
+
+    public enum PaymentType {
+        PERSON, SITE, OTHER
     }
 }

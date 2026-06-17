@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getSites } from '../api/siteApi';
 import { getSitePayments, createPayment } from '../api/paymentApi';
 import Layout from '../components/Layout';
@@ -33,11 +34,23 @@ export default function PaymentsPage() {
 
   const formatCurrency = (v) => '₹' + Number(v).toLocaleString('en-IN');
 
+  const siteOnHold = selectedSiteId && sites.find(s => String(s.id) === String(selectedSiteId))?.status === 'ON_HOLD';
+
   return (
     <Layout>
     <div className="space-y-6">
+      {siteOnHold && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+          <span>⏸️</span>
+          <span><strong>Site is on Hold.</strong> This site is currently on hold. Entries made now will be recorded but the site is not active.</span>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Payment Tracking</h1>
+        <div className="flex items-center gap-3">
+          <Link to="/sites" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Sites</Link>
+          <h1 className="text-2xl font-bold text-gray-900">Payment Tracking</h1>
+        </div>
         {selectedSiteId && <button onClick={() => setShowForm(!showForm)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">{showForm ? 'Cancel' : '+ New Bill'}</button>}
       </div>
 

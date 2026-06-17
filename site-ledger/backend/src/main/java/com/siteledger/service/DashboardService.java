@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -39,18 +40,37 @@ public class DashboardService {
         long runningSites = siteRepository.countByStatus(SiteEntity.SiteStatus.ACTIVE);
         long completedSites = siteRepository.countByStatus(SiteEntity.SiteStatus.COMPLETED);
 
-        BigDecimal totalContractValue = siteRepository.findAll().stream()
+        // Exclude CANCELLED and ARCHIVED sites from financial calculations
+        List<SiteEntity> activeSites = siteRepository.findAll().stream()
+                .filter(s -> s.getStatus() != SiteEntity.SiteStatus.CANCELLED
+                        && s.getStatus() != SiteEntity.SiteStatus.ARCHIVED)
+                .toList();
+
+        BigDecimal totalContractValue = activeSites.stream()
                 .map(s -> s.getContractValue() != null ? s.getContractValue() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal totalReceived = ledgerEntryRepository.totalCreditAll();
-        BigDecimal totalExpense = ledgerEntryRepository.totalDebitAll();
+        // Get all site IDs that are active (not cancelled/archived) for ledger calculations
+        List<Long> activeSiteIds = activeSites.stream()
+                .map(SiteEntity::getId)
+                .toList();
+
+        BigDecimal totalReceived = BigDecimal.ZERO;
+        BigDecimal totalExpense = BigDecimal.ZERO;
+        if (!activeSiteIds.isEmpty()) {
+            totalReceived = ledgerEntryRepository.totalCreditBySites(activeSiteIds);
+            totalExpense = ledgerEntryRepository.totalDebitBySites(activeSiteIds);
+        }
         BigDecimal totalPending = totalContractValue.subtract(totalReceived);
 
-        BigDecimal totalMaterialCost = ledgerEntryRepository.totalExpenseBySiteAndCategory(
-                null, LedgerEntryEntity.Category.MATERIAL);
-        BigDecimal totalLabourCost = ledgerEntryRepository.totalExpenseBySiteAndCategory(
-                null, LedgerEntryEntity.Category.LABOUR);
+        BigDecimal totalMaterialCost = BigDecimal.ZERO;
+        BigDecimal totalLabourCost = BigDecimal.ZERO;
+        if (!activeSiteIds.isEmpty()) {
+            totalMaterialCost = ledgerEntryRepository.totalExpenseBySitesAndCategory(
+                    activeSiteIds, LedgerEntryEntity.Category.MATERIAL);
+            totalLabourCost = ledgerEntryRepository.totalExpenseBySitesAndCategory(
+                    activeSiteIds, LedgerEntryEntity.Category.LABOUR);
+        }
 
         BigDecimal outstandingAdvances = advanceRepository.totalOutstandingAdvances();
 

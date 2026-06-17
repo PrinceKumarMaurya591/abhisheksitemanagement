@@ -10,6 +10,16 @@ export const createAdvance = async (advance) => {
   return response.data;
 };
 
+export const updateAdvance = async (id, advance) => {
+  const response = await api.put(`/advances/${id}`, advance);
+  return response.data;
+};
+
+export const deleteAdvance = async (id) => {
+  const response = await api.delete(`/advances/${id}`);
+  return response.data;
+};
+
 export const addAdvanceExpense = async (advanceId, expense) => {
   const response = await api.post(`/advances/${advanceId}/expense`, expense);
   return response.data;

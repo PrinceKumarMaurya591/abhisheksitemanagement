@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getYojna, getYojnaSites } from '../api/yojnaApi';
-import { getOtherExpenses } from '../api/otherExpenseApi';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,8 +9,6 @@ export default function YojnaDetailPage() {
   const { user } = useAuth();
   const [yojna, setYojna] = useState(null);
   const [sites, setSites] = useState([]);
-  const [otherExpenses, setOtherExpenses] = useState([]);
-  const [activeTab, setActiveTab] = useState('sites');
   const [loading, setLoading] = useState(true);
 
   const canManage = user?.role === 'OWNER' || user?.role === 'OFFICE_ADMIN';
@@ -29,14 +26,6 @@ export default function YojnaDetailPage() {
       ]);
       setYojna(yojnaRes.data);
       setSites(sitesRes.data);
-
-      // Load other expenses for this yojna
-      try {
-        const expensesRes = await getOtherExpenses({ level: 'YOJNA', yojnaId: id });
-        setOtherExpenses(expensesRes.data);
-      } catch (e) {
-        // Other expenses may not exist yet
-      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -59,7 +48,7 @@ export default function YojnaDetailPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <p className="text-sm text-gray-500">Total Sites</p>
           <p className="text-2xl font-bold text-gray-900">{sites.length}</p>
@@ -69,43 +58,26 @@ export default function YojnaDetailPage() {
           <p className="text-2xl font-bold text-green-600">{sites.filter(s => s.status === 'ACTIVE').length}</p>
         </div>
         {canViewFinancial && (
-          <>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-              <p className="text-sm text-gray-500">Total Contract Value</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(sites.reduce((sum, s) => sum + (Number(s.contractValue) || 0), 0))}
-              </p>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-              <p className="text-sm text-gray-500">Other Expenses</p>
-              <p className="text-2xl font-bold text-orange-600">
-                {formatCurrency(otherExpenses.reduce((sum, e) => sum + Number(e.amount), 0))}
-              </p>
-            </div>
-          </>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <p className="text-sm text-gray-500">Total Contract Value</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {formatCurrency(sites.reduce((sum, s) => sum + (Number(s.contractValue) || 0), 0))}
+            </p>
+          </div>
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="flex gap-6">
-          <button onClick={() => setActiveTab('sites')}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'sites' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}>
-            Sites ({sites.length})
-          </button>
-          <button onClick={() => setActiveTab('expenses')}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'expenses' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}>
-            Other Expenses ({otherExpenses.length})
-          </button>
-        </nav>
-      </div>
-
-      {/* Sites Tab */}
-      {activeTab === 'sites' && (
+      {/* Sites Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">Sites under {yojna.yojnaName}</h3>
+          {canManage && (
+            <Link to={`/sites`}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+              + New Site in this Yojna
+            </Link>
+          )}
+        </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -140,47 +112,7 @@ export default function YojnaDetailPage() {
             </tbody>
           </table>
         </div>
-      )}
-
-      {/* Expenses Tab */}
-      {activeTab === 'expenses' && (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Other Expenses — {yojna.yojnaName}</h3>
-            {canManage && (
-              <Link to={`/other-expenses?level=YOJNA&yojnaId=${id}`}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
-                + Add Expense
-              </Link>
-            )}
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Amount</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {otherExpenses.map((exp) => (
-                  <tr key={exp.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium">{exp.category?.categoryName || 'N/A'}</td>
-                    <td className="py-3 px-4">{formatCurrency(exp.amount)}</td>
-                    <td className="py-3 px-4 text-gray-600">{exp.date}</td>
-                    <td className="py-3 px-4 text-gray-600">{exp.description || '-'}</td>
-                  </tr>
-                ))}
-                {otherExpenses.length === 0 && (
-                  <tr><td colSpan={4} className="py-8 text-center text-gray-400">No other expenses for this Yojna</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
     </Layout>
   );

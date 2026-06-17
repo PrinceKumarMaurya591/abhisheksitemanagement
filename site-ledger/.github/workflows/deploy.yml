@@ -1,0 +1,139 @@
+name: 🚀 Deploy Site Ledger to AWS EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # Manual trigger from GitHub UI
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ vars.ECR_REGISTRY || 'public.ecr.aws' }}
+  BACKEND_IMAGE: site-ledger-backend
+  FRONTEND_IMAGE: site-ledger-frontend
+
+jobs:
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Backend Tests
+        working-directory: ./backend
+        run: mvn test -B
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Run Frontend Lint
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run lint 2>/dev/null || echo "No lint script configured"
+
+  build-and-push:
+    name: 🐳 Build & Push Docker Images
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set Image Tags
+        id: tags
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "BACKEND_TAG=${{ steps.login-ecr.outputs.registry }}/${{ env.BACKEND_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "BACKEND_LATEST=${{ steps.login-ecr.outputs.registry }}/${{ env.BACKEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG=${{ steps.login-ecr.outputs.registry }}/${{ env.FRONTEND_IMAGE }}:${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "FRONTEND_LATEST=${{ steps.login-ecr.outputs.registry }}/${{ env.FRONTEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+
+      - name: Build & Push Backend Image
+        working-directory: ./backend
+        run: |
+          docker build -t ${{ steps.tags.outputs.BACKEND_TAG }} .
+          docker tag ${{ steps.tags.outputs.BACKEND_TAG }} ${{ steps.tags.outputs.BACKEND_LATEST }}
+          docker push ${{ steps.tags.outputs.BACKEND_TAG }}
+          docker push ${{ steps.tags.outputs.BACKEND_LATEST }}
+
+      - name: Build & Push Frontend Image
+        working-directory: ./frontend
+        run: |
+          docker build -t ${{ steps.tags.outputs.FRONTEND_TAG }} .
+          docker tag ${{ steps.tags.outputs.FRONTEND_TAG }} ${{ steps.tags.outputs.FRONTEND_LATEST }}
+          docker push ${{ steps.tags.outputs.FRONTEND_TAG }}
+          docker push ${{ steps.tags.outputs.FRONTEND_LATEST }}
+
+  deploy:
+    name: 📦 Deploy to EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+
+            cd /home/ubuntu/site-ledger
+
+            echo "🔐 Logging into ECR..."
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+              docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+
+            echo "📥 Pulling latest images..."
+            docker compose -f docker-compose.prod.yml pull
+
+            echo "🔄 Restarting containers..."
+            docker compose -f docker-compose.prod.yml up -d --force-recreate
+
+            echo "🧹 Cleaning up old images..."
+            docker image prune -af
+
+            echo "✅ Deployment Complete!"
+            echo "📋 Container Status:"
+            docker compose -f docker-compose.prod.yml ps

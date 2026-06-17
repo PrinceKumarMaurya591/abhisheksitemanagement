@@ -162,13 +162,29 @@ export default function OtherExpensesPage() {
     }
   };
 
+  const siteOnHold = selectedSiteId && sites.find(s => String(s.id) === String(selectedSiteId))?.status === 'ON_HOLD';
+
   if (loading) return <Layout><div className="flex justify-center p-12"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div></Layout>;
 
   return (
     <Layout>
     <div className="space-y-6">
+      {siteOnHold && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+          <span>⏸️</span>
+          <span><strong>Site is on Hold.</strong> This site is currently on hold. Entries made now will be recorded but the site is not active.</span>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-3">
+          {searchParams.get('siteId') ? (
+            <Link to={`/sites/${searchParams.get('siteId')}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Site</Link>
+          ) : searchParams.get('yojnaId') ? (
+            <Link to={`/yojnas/${searchParams.get('yojnaId')}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Yojna</Link>
+          ) : (
+            <Link to="/sites" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Sites</Link>
+          )}
           <h1 className="text-2xl font-bold text-gray-900">{getTitle()}</h1>
         </div>
         {canAdd && (siteIdParam || yojnaIdParam || selectedSiteId || level === 'STAFF') && (

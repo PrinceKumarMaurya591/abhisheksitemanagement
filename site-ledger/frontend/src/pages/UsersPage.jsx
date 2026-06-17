@@ -12,7 +12,12 @@ const roleColors = {
   MATE: 'bg-green-100 text-green-800',
 };
 
+// Role descriptions to clarify differences
 const ROLES = ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'];
+const ROLE_DESCRIPTIONS = {
+  MUNSHI: 'MUNSHI - Site Clerk (manages materials, labour, expenses)',
+  MATE: 'MATE - Site Worker (basic entry, materials recording)',
+};
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -254,10 +259,15 @@ export default function UsersPage() {
                     <option value="SUBCONTRACTOR">Subcontractor</option>
                   ) : (
                     ROLES.map((role) => (
-                      <option key={role} value={role}>{role.replace(/_/g, ' ')}</option>
+                      <option key={role} value={role}>
+                        {ROLE_DESCRIPTIONS[role] || role.replace(/_/g, ' ')}
+                      </option>
                     ))
                   )}
                 </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  Munshi = Site Clerk (manages materials, labour records). Mate = Site Worker (basic material entry).
+                </p>
               </div>
               <div className="md:col-span-2 lg:col-span-3 flex justify-end">
                 <button
@@ -305,7 +315,9 @@ export default function UsersPage() {
                       onChange={(e) => setEditForm({...editForm, role: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                       {['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'].map(r => (
-                        <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>
+                        <option key={r} value={r}>
+                          {ROLE_DESCRIPTIONS[r] || r.replace(/_/g, ' ')}
+                        </option>
                       ))}
                     </select>
                   </div>

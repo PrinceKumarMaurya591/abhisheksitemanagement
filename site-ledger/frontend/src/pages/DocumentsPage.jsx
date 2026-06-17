@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getSites } from '../api/siteApi';
 import { getSiteDocuments, uploadDocument, downloadDocument, deleteDocument } from '../api/documentApi';
 import Layout from '../components/Layout';
@@ -108,6 +109,8 @@ export default function DocumentsPage() {
     }
   };
 
+  const siteOnHold = selectedSiteId && sites.find(s => String(s.id) === String(selectedSiteId))?.status === 'ON_HOLD';
+
   const formatFileSize = (bytes) => {
     if (!bytes) return '';
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -118,8 +121,18 @@ export default function DocumentsPage() {
   return (
     <Layout>
     <div className="space-y-6">
+      {siteOnHold && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+          <span>⏸️</span>
+          <span><strong>Site is on Hold.</strong> This site is currently on hold. Entries made now will be recorded but the site is not active.</span>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
+        <div className="flex items-center gap-3">
+          <Link to="/sites" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Sites</Link>
+          <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
+        </div>
         {selectedSiteId && (
           <button
             onClick={() => setShowForm(!showForm)}

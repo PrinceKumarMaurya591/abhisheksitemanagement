@@ -84,4 +84,32 @@ public class TransportController {
 
         return ResponseEntity.ok(ApiResponse.success("Transport entry created", saved));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TransportEntity>> updateTransport(@PathVariable Long id,
+                                                                         @RequestBody TransportEntity transport,
+                                                                         Authentication auth) {
+        return transportRepository.findById(id).map(existing -> {
+            transport.setId(id);
+            transport.setCreatedAt(existing.getCreatedAt());
+            transport.setCreatedBy(existing.getCreatedBy());
+
+            // Recalculate total
+            if (transport.getTrips() != null && transport.getRate() != null) {
+                transport.setTotalAmount(BigDecimal.valueOf(transport.getTrips()).multiply(transport.getRate()));
+            }
+
+            return ResponseEntity.ok(ApiResponse.success("Transport updated",
+                    transportRepository.save(transport)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteTransport(@PathVariable Long id, Authentication auth) {
+        if (!transportRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        transportRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Transport deleted", null));
+    }
 }

@@ -80,7 +80,14 @@ public class SiteController {
     public ResponseEntity<ApiResponse<SiteEntity>> updateSite(@PathVariable Long id,
                                                                @RequestBody SiteEntity site) {
         return siteRepository.findById(id).map(existing -> {
+            // Preserve immutable fields
             site.setId(id);
+            site.setCreatedAt(existing.getCreatedAt());
+            site.setStatus(existing.getStatus());
+            // Merge yojna if provided
+            if (site.getYojna() != null && site.getYojna().getId() != null) {
+                // Keep the provided yojna
+            }
             return ResponseEntity.ok(ApiResponse.success("Site updated successfully",
                     siteRepository.save(site)));
         }).orElse(ResponseEntity.notFound().build());
@@ -97,11 +104,33 @@ public class SiteController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    /** Archive (soft-delete) a site instead of hard-deleting it */
+    @PutMapping("/{id}/archive")
     @PreAuthorize("hasAnyRole('OWNER', 'OFFICE_ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteSite(@PathVariable Long id) {
-        siteRepository.deleteById(id);
-        return ResponseEntity.ok(ApiResponse.success("Site deleted successfully", null));
+    public ResponseEntity<ApiResponse<SiteEntity>> archiveSite(@PathVariable Long id) {
+        return siteRepository.findById(id).map(existing -> {
+            existing.setStatus(SiteEntity.SiteStatus.ARCHIVED);
+            return ResponseEntity.ok(ApiResponse.success("Site archived successfully",
+                    siteRepository.save(existing)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    /** Restore an archived site back to ACTIVE */
+    @PutMapping("/{id}/restore")
+    @PreAuthorize("hasAnyRole('OWNER', 'OFFICE_ADMIN')")
+    public ResponseEntity<ApiResponse<SiteEntity>> restoreSite(@PathVariable Long id) {
+        return siteRepository.findById(id).map(existing -> {
+            existing.setStatus(SiteEntity.SiteStatus.ACTIVE);
+            return ResponseEntity.ok(ApiResponse.success("Site restored successfully",
+                    siteRepository.save(existing)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/archived")
+    @PreAuthorize("hasAnyRole('OWNER', 'OFFICE_ADMIN')")
+    public ResponseEntity<ApiResponse<List<SiteEntity>>> getArchivedSites() {
+        List<SiteEntity> archivedSites = siteRepository.findByStatus(SiteEntity.SiteStatus.ARCHIVED);
+        return ResponseEntity.ok(ApiResponse.success(archivedSites));
     }
 
     /** Assign staff to a site */

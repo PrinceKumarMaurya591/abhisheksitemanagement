@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { getSites } from '../api/siteApi';
 import { getSiteExpenses, createExpense } from '../api/expenseApi';
 import { useAuth } from '../context/AuthContext';
 
-const EXPENSE_TYPES = ['Water', 'Tea', 'Tools', 'Diesel', 'Electricity', 'Stationery', 'Cleaning', 'Security', 'Miscellaneous'];
+const EXPENSE_TYPES = ['Water', 'Tea', 'Tools', 'Diesel', 'Electricity', 'Stationery', 'Cleaning', 'Security', 'Machinery', 'Miscellaneous'];
 const PAYMENT_SOURCES = [
   { value: 'COMPANY_ADVANCE', label: '🏢 Company Advance' },
   { value: 'PERSONAL_MONEY', label: '👤 Personal Money' },
@@ -74,6 +74,8 @@ export default function ExpensesPage() {
   const formatCurrency = (v) => '₹' + Number(v).toLocaleString('en-IN');
   const totalAmount = entries.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
+  const siteOnHold = selectedSiteId && sites.find(s => String(s.id) === String(selectedSiteId))?.status === 'ON_HOLD';
+
   const getSourceBadge = (source) => {
     const colors = {
       COMPANY_ADVANCE: 'bg-blue-100 text-blue-700',
@@ -91,8 +93,22 @@ export default function ExpensesPage() {
   return (
     <Layout>
       <div className="space-y-6">
+        {siteOnHold && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+            <span>⏸️</span>
+            <span><strong>Site is on Hold.</strong> This site is currently on hold. Entries made now will be recorded but the site is not active.</span>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">💰 Petty Expenses</h1>
+          <div className="flex items-center gap-3">
+            {searchParams.get('siteId') ? (
+              <Link to={`/sites/${searchParams.get('siteId')}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Site</Link>
+            ) : (
+              <Link to="/sites" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">← Back to Sites</Link>
+            )}
+            <h1 className="text-2xl font-bold text-gray-900">💰 Petty Expenses</h1>
+          </div>
           {selectedSiteId && canAdd && (
             <button onClick={() => setShowForm(!showForm)}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">

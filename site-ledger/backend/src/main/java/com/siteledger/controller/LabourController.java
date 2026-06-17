@@ -96,4 +96,67 @@ public class LabourController {
 
         return ResponseEntity.ok(ApiResponse.success("Labour entry created", saved));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<LabourEntity>> updateLabour(@PathVariable Long id,
+                                                                   @RequestBody LabourEntity labour,
+                                                                   Authentication auth) {
+        String username = auth.getName();
+        UserEntity user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("User not found"));
+        }
+
+        var existingOpt = labourRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        LabourEntity existing = existingOpt.get();
+
+        // Only OWNER/OFFICE_ADMIN can edit locked entries
+        if (existing.isLocked() && user.getRole() != UserEntity.Role.OWNER
+                && user.getRole() != UserEntity.Role.OFFICE_ADMIN) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Access denied: This entry is locked and cannot be edited"));
+        }
+
+        labour.setId(id);
+        labour.setCreatedAt(existing.getCreatedAt());
+        labour.setCreatedBy(existing.getCreatedBy());
+        labour.setLocked(existing.isLocked());
+        labour.setUser(existing.getUser());
+        if (labour.getSite() == null || labour.getSite().getId() == null) {
+            labour.setSite(existing.getSite());
+        }
+
+        return ResponseEntity.ok(ApiResponse.success("Labour entry updated",
+                labourRepository.save(labour)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteLabour(@PathVariable Long id, Authentication auth) {
+        String username = auth.getName();
+        UserEntity user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("User not found"));
+        }
+
+        var existingOpt = labourRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        LabourEntity existing = existingOpt.get();
+
+        // Only OWNER/OFFICE_ADMIN can delete locked entries
+        if (existing.isLocked() && user.getRole() != UserEntity.Role.OWNER
+                && user.getRole() != UserEntity.Role.OFFICE_ADMIN) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Access denied: This entry is locked and cannot be deleted"));
+        }
+
+        labourRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Labour entry deleted", null));
+    }
 }

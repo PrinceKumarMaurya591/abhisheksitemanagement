@@ -26,8 +26,21 @@ public class MachineryEntity {
     @Column(nullable = false)
     private BigDecimal hours;
 
+    /** Per-day rate for machinery */
+    @Column(precision = 12, scale = 2)
+    private BigDecimal dailyRate;
+
+    /** Number of days the machinery was used */
+    @Column(precision = 6, scale = 0)
+    private Integer daysCount;
+
+    /** Rate per hour or per day (based on rental type) */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal rate;
+
+    /** Rental type: HOURLY or DAILY */
+    @Column(length = 10)
+    private String rentalType = "HOURLY";
 
     @Column(precision = 15, scale = 2)
     private BigDecimal totalAmount;
@@ -64,8 +77,12 @@ public class MachineryEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (totalAmount == null && hours != null && rate != null) {
-            totalAmount = hours.multiply(rate);
+        if (totalAmount == null) {
+            if ("DAILY".equals(rentalType) && dailyRate != null && daysCount != null) {
+                totalAmount = dailyRate.multiply(BigDecimal.valueOf(daysCount));
+            } else if (hours != null && rate != null) {
+                totalAmount = hours.multiply(rate);
+            }
         }
     }
 }

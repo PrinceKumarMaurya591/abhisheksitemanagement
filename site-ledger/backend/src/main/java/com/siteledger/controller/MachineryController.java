@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -84,5 +85,35 @@ public class MachineryController {
                 saved.getSite() != null ? saved.getSite().getId() : null);
 
         return ResponseEntity.ok(ApiResponse.success("Machinery entry created", saved));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<MachineryEntity>> updateMachinery(@PathVariable Long id,
+                                                                         @RequestBody MachineryEntity machinery,
+                                                                         Authentication auth) {
+        return machineryRepository.findById(id).map(existing -> {
+            machinery.setId(id);
+            machinery.setCreatedAt(existing.getCreatedAt());
+            machinery.setCreatedBy(existing.getCreatedBy());
+
+            // Recalculate total amount
+            if ("DAILY".equals(machinery.getRentalType()) && machinery.getDailyRate() != null && machinery.getDaysCount() != null) {
+                machinery.setTotalAmount(machinery.getDailyRate().multiply(BigDecimal.valueOf(machinery.getDaysCount())));
+            } else if (machinery.getHours() != null && machinery.getRate() != null) {
+                machinery.setTotalAmount(machinery.getHours().multiply(machinery.getRate()));
+            }
+
+            return ResponseEntity.ok(ApiResponse.success("Machinery updated",
+                    machineryRepository.save(machinery)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteMachinery(@PathVariable Long id, Authentication auth) {
+        if (!machineryRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        machineryRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Machinery deleted", null));
     }
 }
