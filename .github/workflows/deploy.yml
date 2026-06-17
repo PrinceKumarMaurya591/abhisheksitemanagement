@@ -1,4 +1,4 @@
-name: 🚀 Deploy Site Ledger to AWS EC2 instance
+name: 🚀 Deploy Site Ledger to AWS EC2
 
 on:
   push:
