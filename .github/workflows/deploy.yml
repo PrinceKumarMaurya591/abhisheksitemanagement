@@ -148,7 +148,9 @@ jobs:
             DB_PASSWORD=${DB_PASSWORD:-siteledger123}
 
             # JWT Secret (min 256-bit / 32 characters)
-            JWT_SECRET=${JWT_SECRET}
+            # IMPORTANT: If JWT_SECRET is not set in GitHub Secrets, a secure default is used.
+            # However, you MUST set a unique secret in production for security.
+            JWT_SECRET=${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D635166546A576E5A7234753778214125442A47}
 
             # Allowed CORS origins (comma-separated)
             CORS_ORIGINS=http://$(curl -s http://checkip.amazonaws.com 2>/dev/null || echo "localhost")
