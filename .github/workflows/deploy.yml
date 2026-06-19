@@ -155,6 +155,10 @@ jobs:
             echo "🛑 Stopping and removing existing containers..."
             docker compose -f docker-compose.prod.yml down --remove-orphans || true
 
+            # Force-remove any lingering containers from previous failed runs
+            echo "🧹 Force-removing any lingering containers..."
+            docker rm -f site-ledger-db site-ledger-backend site-ledger-frontend 2>/dev/null || true
+
             echo "🐳 Rebuilding and restarting Docker containers..."
             docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 
