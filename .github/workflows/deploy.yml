@@ -126,24 +126,37 @@ jobs:
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
+          envs: JWT_SECRET,DB_PASSWORD
           script: |
             set -e
             cd /home/ubuntu/app/site-ledger
+
+            # Ensure .env file exists with secrets from GitHub
+            echo "🔐 Setting up environment variables..."
+            cat > .env << EOF
+            # PostgreSQL Password
+            DB_PASSWORD=${DB_PASSWORD:-siteledger123}
+
+            # JWT Secret (min 256-bit / 32 characters)
+            JWT_SECRET=${JWT_SECRET}
+
+            # Allowed CORS origins (comma-separated)
+            CORS_ORIGINS=http://$(curl -s http://checkip.amazonaws.com 2>/dev/null || echo "localhost")
+            EOF
 
             echo "🐳 Rebuilding and restarting Docker containers..."
             docker compose -f docker-compose.prod.yml up -d --build
 
             echo "🧹 Cleaning up old images..."
             docker image prune -af
-
-            echo "✅ Deployment Complete!"
-            echo "📋 Container Status:"
-            docker compose -f docker-compose.prod.yml ps
 
             echo "✅ Deployment Complete!"
             echo "📋 Container Status:"
