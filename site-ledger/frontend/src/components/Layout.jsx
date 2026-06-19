@@ -20,6 +20,7 @@ const navigation = [
   { name: 'Documents', href: '/documents', icon: '📄', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Voice Entry', href: '/voice-entry', icon: '🎤', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Verify', href: '/verification', icon: '✅', roles: ['OWNER', 'OFFICE_ADMIN'] },
+  { name: 'Corrections', href: '/corrections', icon: '📝', roles: ['OWNER', 'OFFICE_ADMIN'] },
   { name: 'Users', href: '/users', icon: '👥', roles: ['OWNER'] },
 ];
 

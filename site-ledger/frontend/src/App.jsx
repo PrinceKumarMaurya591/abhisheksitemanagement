@@ -19,6 +19,7 @@ import YojnasPage from './pages/YojnasPage';
 import YojnaDetailPage from './pages/YojnaDetailPage';
 import VerificationQueuePage from './pages/VerificationQueuePage';
 import VoiceEntryPage from './pages/VoiceEntryPage';
+import CorrectionPage from './pages/CorrectionPage';
 
 import StaffDashboard from './pages/StaffDashboard';
 import MaterialShiftingPage from './pages/MaterialShiftingPage';
@@ -93,6 +94,7 @@ function AppRoutes() {
       <Route path="/documents" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><DocumentsPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute allowedRoles={['OWNER']}><UsersPage /></ProtectedRoute>} />
       <Route path="/verification" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><VerificationQueuePage /></ProtectedRoute>} />
+      <Route path="/corrections" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><CorrectionPage /></ProtectedRoute>} />
       <Route path="/voice-entry" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><VoiceEntryPage /></ProtectedRoute>} />
       
       

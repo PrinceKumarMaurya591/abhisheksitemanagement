@@ -905,9 +905,37 @@ export default function SiteDetailPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
           <span className="text-5xl block mb-4">📈</span>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Site Reports</h3>
-          <p className="text-gray-500 mb-6">Generate and export site reports (Coming soon)</p>
-          <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-500 px-6 py-3 rounded-lg text-sm font-medium cursor-not-allowed">
-            📈 Reports — Coming Soon
+          <p className="text-gray-500 mb-2">Generate and export site reports</p>
+          <p className="text-xs text-gray-400 mb-6">Comprehensive report with Summary, Expenses, Materials, Labour, and Ledger details</p>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <button
+              onClick={async () => {
+                try {
+                  const { downloadSiteExcel, triggerDownload } = await import('../api/reportApi');
+                  const blob = await downloadSiteExcel(id);
+                  triggerDownload(blob, `site-ledger-report-${id}.xlsx`);
+                } catch (e) {
+                  alert('Failed to download Excel report');
+                }
+              }}
+              className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+            >
+              📥 Download Excel Report
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const { downloadSitePdf, triggerDownload } = await import('../api/reportApi');
+                  const blob = await downloadSitePdf(id);
+                  triggerDownload(blob, `site-ledger-report-${id}.pdf`);
+                } catch (e) {
+                  alert('Failed to download PDF report');
+                }
+              }}
+              className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              📥 Download PDF Report
+            </button>
           </div>
         </div>
       )}

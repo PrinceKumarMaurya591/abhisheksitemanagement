@@ -87,6 +87,13 @@
             <version>5.2.5</version>
         </dependency>
 
+        <!-- PDF Export (OpenPDF - LGPL licensed fork of iText) -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>2.0.3</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
