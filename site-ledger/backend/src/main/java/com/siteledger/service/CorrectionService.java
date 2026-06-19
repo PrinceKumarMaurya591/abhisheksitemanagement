@@ -165,9 +165,10 @@ public class CorrectionService {
         labourRepository.findById(entityId).ifPresent(entity -> {
             setStr(values, "labourName", entity::setLabourName);
             setStr(values, "category", entity::setCategory);
-            setInt(values, "count", entity::setCount);
+            setInt(values, "attendanceCount", entity::setAttendanceCount);
             setDec(values, "amount", entity::setAmount);
             setDec(values, "rate", entity::setRate);
+            setStr(values, "remarks", entity::setRemarks);
             labourRepository.save(entity);
         });
     }
@@ -176,8 +177,9 @@ public class CorrectionService {
         expenseRepository.findById(entityId).ifPresent(entity -> {
             setStr(values, "expenseType", entity::setExpenseType);
             setDec(values, "amount", entity::setAmount);
-            setStr(values, "description", entity::setDescription);
+            setStr(values, "remarks", entity::setRemarks);
             setStr(values, "paymentSource", entity::setPaymentSource);
+            setStr(values, "vendorName", entity::setVendorName);
             expenseRepository.save(entity);
         });
     }
