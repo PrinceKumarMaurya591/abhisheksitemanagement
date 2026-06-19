@@ -152,8 +152,11 @@ jobs:
             CORS_ORIGINS=http://$(curl -s http://checkip.amazonaws.com 2>/dev/null || echo "localhost")
             EOF
 
+            echo "🛑 Stopping and removing existing containers..."
+            docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
             echo "🐳 Rebuilding and restarting Docker containers..."
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 
             echo "🧹 Cleaning up old images..."
             docker image prune -af
