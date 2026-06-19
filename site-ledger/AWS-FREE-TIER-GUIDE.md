@@ -89,8 +89,6 @@ sudo apt install -y docker.io docker-compose-v2
 sudo systemctl enable docker
 sudo systemctl start docker
 
-
-
 # Apne user ko Docker group mein add karo (sudo ki zaroorat nahi hogi)
 sudo usermod -aG docker ubuntu
 
@@ -134,7 +132,7 @@ rsync -avz --exclude 'node_modules/' --exclude 'target/' --exclude 'android/' \
 **Verify karo ki files pahunch gayi:**
 
 ```bash
-ssh -i ~/Downloads/site-ledger-key.pem ubuntu@3.6.126.248 "ls -la ~/app/"
+ssh -i ~/Downloads/site-ledger-key.pem ubuntu@3.108.236.191 "ls -la ~/app/"
 ```
 
 > `backend/`, `frontend/`, `docker-compose.prod.yml`, `infra/` — ye sab dikhne chahiye ✅
@@ -146,7 +144,7 @@ ssh -i ~/Downloads/site-ledger-key.pem ubuntu@3.6.126.248 "ls -la ~/app/"
 **EC2 mein SSH karke ye commands run karo:**
 
 ```bash
-ssh -i ~/Downloads/site-ledger-key.pem ubuntu@3.6.126.248
+ssh -i ~/Downloads/site-ledger-key.pem ubuntu@3.108.236.191
 ```
 
 **Ab EC2 ke andar:**
@@ -159,7 +157,7 @@ cd ~/app
 cat > .env << 'ENVEOF'
 DB_PASSWORD=siteledger123
 JWT_SECRET=MySecretKeyForSiteLedgerApp2024OnAwsFreeTier123
-CORS_ORIGINS=http://3.6.126.248
+CORS_ORIGINS=http://3.108.236.191
 ENVEOF
 
 # IP address apne EC2 ke actual IP se replace karna (upar CORS_ORIGINS mein)
