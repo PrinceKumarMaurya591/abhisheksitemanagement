@@ -114,6 +114,16 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Sync code to EC2
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          SOURCE: "./"
+          TARGET: "/home/ubuntu/app"
+          ARGS: "-avz --delete --exclude='node_modules' --exclude='target' --exclude='.git' --exclude='android'"
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -123,20 +133,17 @@ jobs:
           port: 22
           script: |
             set -e
-            cd /home/ubuntu/app
+            cd /home/ubuntu/app/site-ledger
 
-            echo "🔐 Logging into ECR..."
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
-              docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-
-            echo "📥 Pulling latest images..."
-            docker compose -f docker-compose.prod.yml pull
-
-            echo "🔄 Restarting containers..."
-            docker compose -f docker-compose.prod.yml up -d --force-recreate
+            echo "🐳 Rebuilding and restarting Docker containers..."
+            docker compose -f docker-compose.prod.yml up -d --build
 
             echo "🧹 Cleaning up old images..."
             docker image prune -af
+
+            echo "✅ Deployment Complete!"
+            echo "📋 Container Status:"
+            docker compose -f docker-compose.prod.yml ps
 
             echo "✅ Deployment Complete!"
             echo "📋 Container Status:"
