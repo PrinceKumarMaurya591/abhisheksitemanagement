@@ -1,7 +1,7 @@
 import api from './axios';
 
-export const getMyBalance = () =>
-  api.get('/balance-ledger/my-balance').then(res => res.data);
+export const getMyBalance = (siteId) =>
+  api.get('/balance-ledger/my-balance', { params: { siteId } }).then(res => res.data);
 
 export const getMyTransactions = (siteId) =>
   api.get('/balance-ledger/my-transactions', { params: { siteId } }).then(res => res.data);

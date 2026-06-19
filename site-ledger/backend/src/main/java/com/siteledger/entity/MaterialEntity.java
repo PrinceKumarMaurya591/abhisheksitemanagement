@@ -24,6 +24,10 @@ public class MaterialEntity {
     @Column(length = 20)
     private String unit;
 
+    /** STOCK (Cement, Steel, Pipe) or BULK (GSB, WMM, Sand, Morrum, Earth) */
+    @Column(length = 10)
+    private String materialType = "STOCK";
+
     @Column(precision = 15, scale = 3)
     private BigDecimal purchasedQty = BigDecimal.ZERO;
 

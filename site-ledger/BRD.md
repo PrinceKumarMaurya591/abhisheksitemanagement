@@ -1,6 +1,10 @@
 # 🏗️ Site Ledger V1.0
 ## Role, Access Control & Permission BRD
 
+> **⚠️ NOTE:** This document describes V1.0 architecture.
+> **The Final Frozen Structure (v3.0) is now available** at [`plans/site-ledger-final-frozen-brd.md`](../plans/site-ledger-final-frozen-brd.md)
+> **The V2.0 Architecture Plan** is at [`plans/site-ledger-v2-architecture-brd.md`](../plans/site-ledger-v2-architecture-brd.md)
+
 ---
 
 **Document Version:** 1.0  

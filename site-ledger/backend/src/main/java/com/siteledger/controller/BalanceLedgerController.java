@@ -32,22 +32,36 @@ public class BalanceLedgerController {
     }
 
     @GetMapping("/my-balance")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getMyBalance(Authentication auth) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getMyBalance(
+            @RequestParam(required = false) Long siteId,
+            Authentication auth) {
         String username = auth.getName();
         UserEntity user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             return ResponseEntity.badRequest().body(ApiResponse.error("User not found"));
         }
 
-        BigDecimal totalReceived = balanceLedgerRepository.totalReceivedByStaff(user.getId());
-        BigDecimal totalExpense = balanceLedgerRepository.totalExpenseByStaff(user.getId());
-        BigDecimal currentBalance = totalReceived.subtract(totalExpense);
+        BigDecimal totalReceived;
+        BigDecimal totalExpense;
+        BigDecimal currentBalance;
+
+        if (siteId != null) {
+            totalReceived = balanceLedgerRepository.totalReceivedByStaffAndSite(user.getId(), siteId);
+            totalExpense = balanceLedgerRepository.totalExpenseByStaffAndSite(user.getId(), siteId);
+        } else {
+            totalReceived = balanceLedgerRepository.totalReceivedByStaff(user.getId());
+            totalExpense = balanceLedgerRepository.totalExpenseByStaff(user.getId());
+        }
+        currentBalance = totalReceived.subtract(totalExpense);
 
         Map<String, Object> balance = new HashMap<>();
         balance.put("totalReceived", totalReceived);
         balance.put("totalExpense", totalExpense);
         balance.put("currentBalance", currentBalance);
         balance.put("staffName", user.getFullName() != null ? user.getFullName() : user.getUsername());
+        if (siteId != null) {
+            balance.put("siteId", siteId);
+        }
 
         return ResponseEntity.ok(ApiResponse.success(balance));
     }

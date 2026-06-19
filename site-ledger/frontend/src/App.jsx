@@ -17,8 +17,11 @@ import DocumentsPage from './pages/DocumentsPage';
 import UsersPage from './pages/UsersPage';
 import YojnasPage from './pages/YojnasPage';
 import YojnaDetailPage from './pages/YojnaDetailPage';
+import VerificationQueuePage from './pages/VerificationQueuePage';
+import VoiceEntryPage from './pages/VoiceEntryPage';
 
 import StaffDashboard from './pages/StaffDashboard';
+import MaterialShiftingPage from './pages/MaterialShiftingPage';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
@@ -79,6 +82,7 @@ function AppRoutes() {
       {/* Other Routes */}
       <Route path="/ledger" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><LedgerPage /></ProtectedRoute>} />
       <Route path="/materials" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><MaterialsPage /></ProtectedRoute>} />
+      <Route path="/material-shifting" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><MaterialShiftingPage /></ProtectedRoute>} />
       <Route path="/labour" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><LabourPage /></ProtectedRoute>} />
       <Route path="/machinery" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><MachineryPage /></ProtectedRoute>} />
       <Route path="/transport" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><TransportPage /></ProtectedRoute>} />
@@ -88,6 +92,8 @@ function AppRoutes() {
       <Route path="/payments" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><PaymentsPage /></ProtectedRoute>} />
       <Route path="/documents" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><DocumentsPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute allowedRoles={['OWNER']}><UsersPage /></ProtectedRoute>} />
+      <Route path="/verification" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN']}><VerificationQueuePage /></ProtectedRoute>} />
+      <Route path="/voice-entry" element={<ProtectedRoute allowedRoles={['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE']}><VoiceEntryPage /></ProtectedRoute>} />
       
       
       <Route path="/" element={<Navigate to="/login" replace />} />

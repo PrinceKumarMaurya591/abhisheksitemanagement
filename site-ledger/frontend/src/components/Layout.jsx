@@ -10,6 +10,7 @@ const navigation = [
   { name: 'Ledger', href: '/ledger', icon: '📒', roles: ['OWNER', 'OFFICE_ADMIN'] },
   { name: 'Materials', href: '/materials', icon: '📦', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Labour', href: '/labour', icon: '👷', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Material Shift', href: '/material-shifting', icon: '🚛', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Machinery', href: '/machinery', icon: '🚜', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Transport', href: '/transport', icon: '🚛', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
   { name: 'Expenses', href: '/expenses', icon: '💸', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
@@ -17,6 +18,8 @@ const navigation = [
   { name: 'Advances', href: '/advances', icon: '💰', roles: ['OWNER', 'OFFICE_ADMIN'] },
   { name: 'Payments', href: '/payments', icon: '💳', roles: ['OWNER', 'OFFICE_ADMIN'] },
   { name: 'Documents', href: '/documents', icon: '📄', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Voice Entry', href: '/voice-entry', icon: '🎤', roles: ['OWNER', 'OFFICE_ADMIN', 'SITE_INCHARGE', 'MUNSHI', 'MATE'] },
+  { name: 'Verify', href: '/verification', icon: '✅', roles: ['OWNER', 'OFFICE_ADMIN'] },
   { name: 'Users', href: '/users', icon: '👥', roles: ['OWNER'] },
 ];
 

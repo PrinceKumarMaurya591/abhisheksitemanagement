@@ -114,6 +114,8 @@ public class UserController {
             createPermission(user, "MATERIAL", "ADD");
             createPermission(user, "LABOUR", "VIEW");
             createPermission(user, "LABOUR", "ADD");
+            createPermission(user, "EXPENSE", "VIEW");
+            createPermission(user, "EXPENSE", "ADD");
             createPermission(user, "DOCUMENT", "VIEW");
             createPermission(user, "DOCUMENT", "ADD");
             createPermission(user, "BALANCE", "VIEW");

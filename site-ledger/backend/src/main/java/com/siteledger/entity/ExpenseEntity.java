@@ -57,6 +57,15 @@ public class ExpenseEntity {
     @JsonIgnore
     private UserEntity user;
 
+    /** Office verification */
+    @Column(nullable = false)
+    private boolean verified = false;
+
+    private LocalDateTime verifiedAt;
+
+    @Column(length = 100)
+    private String verifiedBy;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

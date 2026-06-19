@@ -46,6 +46,10 @@ public class SiteEntity {
     @Column(length = 500)
     private String address;
 
+    /** District where the site/project is located */
+    @Column(length = 100)
+    private String district;
+
     /** Parent Yojna (Nikay/Scheme) this site belongs to */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "yojna_id")

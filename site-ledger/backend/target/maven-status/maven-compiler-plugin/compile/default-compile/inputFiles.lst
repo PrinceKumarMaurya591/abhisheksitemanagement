@@ -8,6 +8,7 @@
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/AdvanceExpenseRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/OtherExpenseController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/BalanceLedgerEntity.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/MaterialShiftingRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/service/DashboardService.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/PaymentRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/SubcontractorWorkRepository.java
@@ -16,6 +17,8 @@
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/SubcontractorWorkController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/dto/JwtResponse.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/ExpenseCategoryEntity.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/service/LabourManagementService.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/LabourManagementController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/AdvanceRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/BalanceLedgerRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/AuditLogEntity.java
@@ -24,11 +27,13 @@
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/LedgerEntryRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/YojnaEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/LabourEntity.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/LabourPaymentRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/PermissionRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/dto/DashboardResponse.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/OtherExpenseRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/security/JwtTokenProvider.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/BalanceLedgerController.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/MaterialShiftingController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/AuditLogRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/LabourController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/DocumentRepository.java
@@ -39,9 +44,11 @@
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/TransportRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/MaterialController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/ExpenseCategoryRepository.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/VerificationController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/LabourRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/MaterialRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/DocumentEntity.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/service/VerificationService.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/security/JwtAuthenticationFilter.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/config/DataSeeder.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/OtherExpenseEntity.java
@@ -58,8 +65,11 @@
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/ExpenseController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/MaterialTransactionEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/config/GlobalExceptionHandler.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/LabourAttendanceRepository.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/MaterialShiftingEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/UserController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/SiteController.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/LabourRegistrationRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/service/AuditService.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/SiteLedgerApplication.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/DashboardController.java
@@ -67,7 +77,10 @@
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/SiteRepository.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/MaterialEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/repository/UserRepository.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/LabourPaymentEntity.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/LabourRegistrationEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/SubcontractorWorkEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/controller/ExpenseCategoryController.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/dto/ApiResponse.java
+/media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/LabourAttendanceEntity.java
 /media/prince-kumar-maurya/Work_Data/Abhishek Project/site-ledger/backend/src/main/java/com/siteledger/entity/SiteEntity.java

@@ -17,7 +17,8 @@ export default function SitesPage() {
   const [editingSite, setEditingSite] = useState(null);
   const [form, setForm] = useState({
     siteName: '', department: '', workName: '', contractValue: '',
-    workOrderNumber: '', startDate: '', endDate: '', address: '', yojna: null,
+    workOrderNumber: '', startDate: '', endDate: '', address: '', district: '',
+    yojna: null,
   });
 
   useEffect(() => { loadData(); }, []);
@@ -57,7 +58,8 @@ export default function SitesPage() {
   const resetForm = () => {
     setForm({
       siteName: '', department: '', workName: '', contractValue: '',
-      workOrderNumber: '', startDate: '', endDate: '', address: '', yojna: null,
+      workOrderNumber: '', startDate: '', endDate: '', address: '', district: '',
+      yojna: null,
     });
     setEditingSite(null);
   };
@@ -72,6 +74,7 @@ export default function SitesPage() {
       startDate: site.startDate || '',
       endDate: site.endDate || '',
       address: site.address || '',
+      district: site.district || '',
       yojna: site.yojna?.id || '',
     });
     setEditingSite(site);
@@ -284,6 +287,12 @@ export default function SitesPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
               <input type="date" value={form.endDate} onChange={(e) => setForm({...form, endDate: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">District *</label>
+              <input type="text" required value={form.district} onChange={(e) => setForm({...form, district: e.target.value})}
+                placeholder="e.g. Lucknow, Varanasi"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
             <div className="md:col-span-2 lg:col-span-3">

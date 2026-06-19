@@ -63,6 +63,15 @@ public class LabourEntity {
     @Column(nullable = false)
     private boolean locked = false;
 
+    /** Office verification */
+    @Column(nullable = false)
+    private boolean verified = false;
+
+    private LocalDateTime verifiedAt;
+
+    @Column(length = 100)
+    private String verifiedBy;
+
     /** Who created this entry */
     @Column(length = 100)
     private String createdBy;

@@ -1,35 +1,61 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { getMyBalance, getMyTransactions } from '../api/balanceApi';
+import { getSites } from '../api/siteApi';
 import { useAuth } from '../context/AuthContext';
 
 export default function BalancePage() {
   const { user } = useAuth();
   const [balance, setBalance] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [sites, setSites] = useState([]);
+  const [selectedSiteId, setSelectedSiteId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const isSiteStaff = user?.role === 'SITE_INCHARGE' || user?.role === 'MUNSHI';
+  const isSiteStaff = user?.role === 'SITE_INCHARGE' || user?.role === 'MUNSHI' || user?.role === 'MATE';
 
   useEffect(() => {
     loadData();
   }, []);
 
+  // Reload balance and transactions when site filter changes
+  useEffect(() => {
+    if (!loading) {
+      loadBalanceAndTransactions();
+    }
+  }, [selectedSiteId]);
+
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [balanceRes, txnRes] = await Promise.all([
+      const [balanceRes, txnRes, sitesRes] = await Promise.all([
         getMyBalance(),
         getMyTransactions(null),
+        getSites(),
       ]);
       if (balanceRes.success) setBalance(balanceRes.data);
       if (txnRes.success) setTransactions(txnRes.data || []);
+      if (sitesRes.success) setSites(sitesRes.data || []);
     } catch (err) {
       setError('Failed to load balance data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadBalanceAndTransactions = async () => {
+    try {
+      const siteIdParam = selectedSiteId || null;
+      const [balanceRes, txnRes] = await Promise.all([
+        getMyBalance(siteIdParam),
+        getMyTransactions(siteIdParam),
+      ]);
+      if (balanceRes.success) setBalance(balanceRes.data);
+      if (txnRes.success) setTransactions(txnRes.data || []);
+    } catch (err) {
+      console.error('Failed to load data', err);
     }
   };
 
@@ -83,6 +109,30 @@ export default function BalancePage() {
           </div>
         ) : null}
 
+        {/* Site Filter */}
+        {sites.length > 0 && (
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Filter by Site:</label>
+            <select
+              value={selectedSiteId}
+              onChange={(e) => setSelectedSiteId(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            >
+              <option value="">All Sites (Combined)</option>
+              {sites.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.siteName} {s.district ? `(${s.district})` : ''}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs text-gray-400">
+              {selectedSiteId
+                ? `Showing transactions for selected site`
+                : 'Showing transactions across all sites'}
+            </span>
+          </div>
+        )}
+
         {/* Balance Summary Cards */}
         {balance && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -127,13 +177,19 @@ export default function BalancePage() {
             <li><strong>Positive Balance:</strong> कंपनी का पैसा आपके पास है, वापस करना है</li>
             <li><strong>Negative Balance:</strong> आपने अपने पैसे खर्च किए, कंपनी को आपको देना है</li>
             <li>Expense करते समय Payment Source चुनें: Company Advance / Personal Money / Vendor Credit</li>
+            <li><strong>Site Filter:</strong> ऊपर Site चुनकर देखें कि किस Site पर कितना मिला और खर्च किया</li>
           </ul>
         </div>
 
         {/* Transaction History */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">📋 Transaction History</h3>
+            {selectedSiteId && (
+              <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
+                Site: {sites.find(s => s.id === Number(selectedSiteId))?.siteName || 'Selected'}
+              </span>
+            )}
           </div>
           <div className="divide-y divide-gray-100">
             {transactions.length === 0 ? (
@@ -153,6 +209,7 @@ export default function BalancePage() {
                         <p className="text-xs text-gray-500">
                           {txn.date} {txn.paymentSource ? `| ${getSourceLabel(txn.paymentSource)}` : ''}
                           {txn.vendorName ? ` | Vendor: ${txn.vendorName}` : ''}
+                          {txn.site?.siteName ? ` | Site: ${txn.site.siteName}` : ''}
                         </p>
                       </div>
                     </div>

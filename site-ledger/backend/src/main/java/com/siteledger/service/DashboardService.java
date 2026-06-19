@@ -129,12 +129,21 @@ public class DashboardService {
                 .balance(balance)
                 .build();
 
+        // Calculate progress percentage
+        BigDecimal progressPercentage = BigDecimal.ZERO;
+        if (contractValue.compareTo(BigDecimal.ZERO) > 0) {
+            progressPercentage = totalReceived
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(contractValue, 1, java.math.RoundingMode.HALF_UP);
+        }
+
         return DashboardResponse.SiteDashboard.builder()
                 .contractValue(contractValue)
                 .totalReceived(totalReceived)
                 .pendingAmount(pendingAmount)
                 .totalExpense(totalExpense)
                 .profitLoss(profitLoss)
+                .progressPercentage(progressPercentage)
                 .expenseSummary(expenseSummary)
                 .materialSummary(materialSummary)
                 .build();

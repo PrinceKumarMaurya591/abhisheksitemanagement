@@ -38,6 +38,7 @@ public class DashboardResponse {
         private BigDecimal pendingAmount;
         private BigDecimal totalExpense;
         private BigDecimal profitLoss;
+        private BigDecimal progressPercentage;
         private Map<String, BigDecimal> expenseSummary;
         private MaterialSummary materialSummary;
     }

@@ -1,5 +1,9 @@
 # 🏗️ Site Ledger V2.0 — Architecture & BRD
 
+> **⚠️ NOTE:** This document describes V2.0 architecture (draft).
+> **The Final Frozen Structure (v3.0) is now available** at [`plans/site-ledger-final-frozen-brd.md`](./site-ledger-final-frozen-brd.md)
+> **The V1.0 BRD** is at [`site-ledger/BRD.md`](../site-ledger/BRD.md)
+
 ## Overview
 
 This document defines the **enhanced architecture** for Site Ledger V2.0, introducing **Nikay/Yojna** hierarchy, **Mate role**, **time-based access control**, and **configurable Other Expenses module**.
