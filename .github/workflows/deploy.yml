@@ -129,12 +129,14 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ env.AWS_REGION }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          envs: JWT_SECRET,DB_PASSWORD
+          envs: JWT_SECRET,DB_PASSWORD,AWS_ACCOUNT_ID,AWS_REGION
           script: |
             set -e
             cd /home/ubuntu/app/site-ledger
@@ -159,8 +161,44 @@ jobs:
             echo "🧹 Force-removing any lingering containers..."
             docker rm -f site-ledger-db site-ledger-backend site-ledger-frontend 2>/dev/null || true
 
-            echo "🐳 Rebuilding and restarting Docker containers..."
+            # Determine ECR registry URL
+            ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+            echo "🔑 Logging into Amazon ECR..."
+            aws ecr get-login-password --region ${AWS_REGION} | \
+              docker login --username AWS --password-stdin ${ECR_REGISTRY}
+
+            echo "📥 Pulling pre-built Docker images from ECR..."
+            docker pull ${ECR_REGISTRY}/site-ledger-backend:latest || echo "⚠️ No latest tag, will build from source"
+            docker pull ${ECR_REGISTRY}/site-ledger-frontend:latest || echo "⚠️ No latest tag, will build from source"
+
+            # Tag ECR images so docker-compose can use them as pre-built
+            docker tag ${ECR_REGISTRY}/site-ledger-backend:latest site-ledger-backend:latest 2>/dev/null || true
+            docker tag ${ECR_REGISTRY}/site-ledger-frontend:latest site-ledger-frontend:latest 2>/dev/null || true
+
+            echo "🐳 Starting Docker containers (using pre-built images if available)..."
+            # Use --build as fallback: if images exist locally, compose reuses them;
+            # if not, it builds from source (but ECR pull above should have them)
             docker compose -f docker-compose.prod.yml up -d --build --force-recreate
+
+            echo "⏳ Waiting for backend to become healthy..."
+            TIMEOUT=120
+            ELAPSED=0
+            while [ $ELAPSED -lt $TIMEOUT ]; do
+              HEALTH=$(docker inspect --format='{{.State.Health.Status}}' site-ledger-backend 2>/dev/null || echo "")
+              if [ "$HEALTH" = "healthy" ]; then
+                echo "✅ Backend is healthy!"
+                break
+              fi
+              echo "  Waiting... (${ELAPSED}s / ${TIMEOUT}s) status=${HEALTH:-unknown}"
+              sleep 10
+              ELAPSED=$((ELAPSED + 10))
+            done
+
+            if [ "$HEALTH" != "healthy" ]; then
+              echo "⚠️ Backend healthcheck did not pass within ${TIMEOUT}s. Checking logs..."
+              docker logs site-ledger-backend --tail 50 2>/dev/null || true
+            fi
 
             echo "🧹 Cleaning up old images..."
             docker image prune -af

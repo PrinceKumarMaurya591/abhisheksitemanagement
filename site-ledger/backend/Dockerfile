@@ -14,6 +14,9 @@ RUN mvn package -DskipTests -B
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
+# Install curl for Docker healthcheck support
+RUN apk add --no-cache curl
+
 # Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
@@ -25,5 +28,8 @@ RUN mkdir -p /app/uploads && chown -R appuser:appgroup /app
 
 USER appuser
 EXPOSE 8081
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8081/api/auth/login || exit 1
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
