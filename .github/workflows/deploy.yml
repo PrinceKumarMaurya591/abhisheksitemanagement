@@ -169,17 +169,31 @@ jobs:
               docker login --username AWS --password-stdin ${ECR_REGISTRY}
 
             echo "📥 Pulling pre-built Docker images from ECR..."
-            docker pull ${ECR_REGISTRY}/site-ledger-backend:latest || echo "⚠️ No latest tag, will build from source"
-            docker pull ${ECR_REGISTRY}/site-ledger-frontend:latest || echo "⚠️ No latest tag, will build from source"
+            PULL_BACKEND=true
+            docker pull ${ECR_REGISTRY}/site-ledger-backend:latest || PULL_BACKEND=false
+            PULL_FRONTEND=true
+            docker pull ${ECR_REGISTRY}/site-ledger-frontend:latest || PULL_FRONTEND=false
 
-            # Tag ECR images so docker-compose can use them as pre-built
-            docker tag ${ECR_REGISTRY}/site-ledger-backend:latest site-ledger-backend:latest 2>/dev/null || true
-            docker tag ${ECR_REGISTRY}/site-ledger-frontend:latest site-ledger-frontend:latest 2>/dev/null || true
+            # Tag ECR images with the explicit names used in docker-compose.prod.yml's image: field
+            if [ "$PULL_BACKEND" = "true" ]; then
+              docker tag ${ECR_REGISTRY}/site-ledger-backend:latest site-ledger-backend:latest
+              echo "✅ Backend image pulled from ECR"
+            else
+              echo "⚠️ No backend image in ECR, will build from source"
+            fi
 
-            echo "🐳 Starting Docker containers (using pre-built images if available)..."
-            # Use --build as fallback: if images exist locally, compose reuses them;
-            # if not, it builds from source (but ECR pull above should have them)
-            docker compose -f docker-compose.prod.yml up -d --build --force-recreate
+            if [ "$PULL_FRONTEND" = "true" ]; then
+              docker tag ${ECR_REGISTRY}/site-ledger-frontend:latest site-ledger-frontend:latest
+              echo "✅ Frontend image pulled from ECR"
+            else
+              echo "⚠️ No frontend image in ECR, will build from source"
+            fi
+
+            echo "🐳 Starting Docker containers..."
+            # NOTE: No --build flag — docker compose uses the image: tag if it exists,
+            # or falls back to building from source if the image is missing.
+            # The ECR pull + tag above provides the images when available.
+            docker compose -f docker-compose.prod.yml up -d --force-recreate
 
             echo "⏳ Waiting for backend to become healthy..."
             TIMEOUT=120

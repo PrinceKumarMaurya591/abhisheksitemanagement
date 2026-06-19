@@ -27,6 +27,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: site-ledger-backend:latest
     container_name: site-ledger-backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/site_ledger
@@ -52,6 +53,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: site-ledger-frontend:latest
     container_name: site-ledger-frontend
     ports:
       - "80:80"
